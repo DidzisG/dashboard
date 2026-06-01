@@ -2,7 +2,8 @@ export function initWindowManager(state, saveCallback) {
   const container = document.getElementById('main-content');
   const dashboardGrid = document.querySelector('.dashboard-grid');
   
-  if (!dashboardGrid || !state.layout) return;
+  // Abort if no grid, no state, or if running on mobile (CSS handles layout via flex-column)
+  if (!dashboardGrid || !state.layout || window.innerWidth <= 768) return;
 
   const widgets = Array.from(dashboardGrid.querySelectorAll('.widget'));
   
