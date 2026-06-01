@@ -7,12 +7,13 @@ const GMAIL = 'https://gmail.googleapis.com/gmail/v1/users/me';
 // Fetch up to `max` unread inbox messages and convert to dashboard format
 export async function fetchGmailMessages(max = 15) {
   try {
-    // 1. Get list of message IDs (unread inbox)
+    console.log('Fetching Gmail messages (unread inbox)...');
     const listData = await gFetch(
       `${GMAIL}/messages?maxResults=${max}&labelIds=INBOX&q=is:unread`
     );
-
+    console.log('Gmail list response:', listData);
     const ids = listData.messages || [];
+    console.log(`Found ${ids.length} unread inbox messages.`);
     if (ids.length === 0) return [];
 
     // 2. Fetch metadata for each (parallel, limit to 12)
