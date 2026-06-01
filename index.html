@@ -245,7 +245,11 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               Notes Scratchpad
             </h2>
-            <div class="widget-actions">
+            <div class="widget-actions" style="display: flex; gap: 8px; align-items: center;">
+              <button class="preview-toggle-btn" id="notes-cloud-sync" title="Sync to Google Drive">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                Sync
+              </button>
               <button class="preview-toggle-btn" id="notes-preview-toggle">Preview</button>
               <span id="notes-save-status" style="font-size: 0.7rem; color: var(--text-muted);">Saved</span>
             </div>
@@ -384,6 +388,7 @@
 
   <!-- Application JS Mounting -->
   <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

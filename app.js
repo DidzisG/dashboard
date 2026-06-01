@@ -1,12 +1,13 @@
 // Main Application Orchestrator (Aether Dashboard)
 
 import { loadState, updateField } from './js/db.js';
+
 import { initTasks, addTask, toggleTask, setGoogleSyncHooks } from './js/tasks.js';
 import { initCalendar, openAddEventModal, syncCalendar } from './js/calendar.js';
 import { initEmails, openEmailDetail, playNotificationSound, renderEmails } from './js/email.js';
 import { initCommandPalette } from './js/commandPalette.js';
 import { initNotifications, addNotification } from './js/notifications.js';
-import { initNotes } from './js/notes.js';
+import { initNotes, syncNotesFromCloud } from './js/notes.js';
 import { initGoogleAuth, signIn, signOut, isSignedIn, getProfile } from './js/google.js';
 import { fetchGmailMessages, openInGmail, markGmailRead } from './js/gmail.js';
 import { initGoogleTasks, fetchGoogleTasks, createGoogleTask, completeGoogleTask, deleteGoogleTask } from './js/googleTasks.js';
@@ -494,6 +495,16 @@ async function handleGoogleSignIn(token, profile) {
     showVisualNotification('Calendar Error', e.message || 'Could not load Calendar.');
   }
   showLoadingState('calendar-widget', false);
+
+  // --- Fetch Google Drive Notes ---
+  showLoadingState('notes-widget', true);
+  try {
+    await syncNotesFromCloud();
+    addNotification('Cloud Notes Synced', `Notes downloaded from Google Drive`, 'system');
+  } catch (e) {
+    console.error('Notes sync error:', e);
+  }
+  showLoadingState('notes-widget', false);
 
   // --- Bidirectional task sync hooks ---
   setGoogleSyncHooks({
