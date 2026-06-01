@@ -2,6 +2,9 @@
 
 let appState = null;
 let saveCallback = null;
+let onTaskToggleHook = null; // fired when a task is toggled (for Google sync)
+let onTaskDeleteHook = null; // fired when a task is deleted (for Google sync)
+let onTaskAddHook = null;    // fired when a task is added locally (for Google sync)
 
 const tasksContainer = document.getElementById('task-list-container');
 const taskForm = document.getElementById('task-create-form');
@@ -14,16 +17,19 @@ export function initTasks(state, onStateChange) {
   appState = state;
   saveCallback = onStateChange;
 
-  // Bind UI Events
   if (taskForm) {
     taskForm.addEventListener('submit', handleTaskSubmit);
   }
 
-  // Bind widget filter buttons
   setupFilters();
-
-  // Initial render
   renderTasks();
+}
+
+// Called by app.js after Google auth to wire up bidirectional sync
+export function setGoogleSyncHooks({ onAdd, onToggle, onDelete }) {
+  onTaskAddHook    = onAdd    || null;
+  onTaskToggleHook = onToggle || null;
+  onTaskDeleteHook = onDelete || null;
 }
 
 function setupFilters() {
@@ -97,14 +103,24 @@ function handleTaskSubmit(e) {
   taskInput.value = '';
 }
 
-export function addTask(text, priority = 'medium') {
-  const newTask = {
-    id: 't_' + Date.now(),
-    text: text,
-    completed: false,
-    priority: priority,
-    dateCreated: new Date().toISOString().split('T')[0]
-  };
+// addTask: accepts either (text, priority) or a full task object (for Google Tasks injection)
+export function addTask(textOrObj, priority = 'medium') {
+  let newTask;
+  if (typeof textOrObj === 'object' && textOrObj !== null) {
+    // Full task object passed (e.g. from Google Tasks sync)
+    newTask = textOrObj;
+  } else {
+    newTask = {
+      id:          't_' + Date.now(),
+      text:        textOrObj,
+      completed:   false,
+      priority,
+      source:      'local',
+      dateCreated: new Date().toISOString().split('T')[0],
+    };
+    // Fire hook so Google Tasks can mirror this locally-created task
+    if (onTaskAddHook) onTaskAddHook(newTask);
+  }
 
   appState.tasks.push(newTask);
   saveCallback('tasks', appState.tasks);
@@ -112,19 +128,26 @@ export function addTask(text, priority = 'medium') {
 }
 
 export function toggleTask(id) {
+  let toggledTask = null;
   appState.tasks = appState.tasks.map(task => {
     if (task.id === id) {
-      return { ...task, completed: !task.completed };
+      toggledTask = { ...task, completed: !task.completed };
+      return toggledTask;
     }
     return task;
   });
   saveCallback('tasks', appState.tasks);
+  // Fire Google sync hook if task has a googleTaskId
+  if (toggledTask && onTaskToggleHook) onTaskToggleHook(toggledTask);
   renderTasks();
 }
 
 export function deleteTask(id) {
-  appState.tasks = appState.tasks.filter(task => task.id !== id);
+  const task = appState.tasks.find(t => t.id === id);
+  appState.tasks = appState.tasks.filter(t => t.id !== id);
   saveCallback('tasks', appState.tasks);
+  // Fire Google sync hook if task has a googleTaskId
+  if (task && onTaskDeleteHook) onTaskDeleteHook(task);
   renderTasks();
 }
 
@@ -181,6 +204,7 @@ export function renderTasks() {
         <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
         <span class="task-text" title="${escapeHtml(task.text)}">${escapeHtml(task.text)}</span>
         <span class="task-prio-tag prio-${task.priority}">${task.priority}</span>
+        ${task.source === 'google' ? '<span class="task-google-badge" title="Synced from Google Tasks">G</span>' : ''}
       </div>
       <button class="task-delete-btn" title="Delete Task">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>

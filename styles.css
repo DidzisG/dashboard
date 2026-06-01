@@ -487,6 +487,23 @@ header {
   color: var(--accent-purple);
 }
 
+.email-sender .tag.gmail {
+  background: rgba(66, 133, 244, 0.15);
+  color: #4285f4;
+}
+
+/* Google Tasks source badge on task items */
+.task-google-badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(66, 133, 244, 0.15);
+  color: #4285f4;
+  border: 1px solid rgba(66, 133, 244, 0.25);
+  flex-shrink: 0;
+}
+
 .email-subject {
   font-size: 0.8rem;
   color: var(--text-secondary);

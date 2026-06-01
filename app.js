@@ -1,12 +1,15 @@
 // Main Application Orchestrator (Aether Dashboard)
 
 import { loadState, updateField } from './js/db.js';
-import { initTasks, addTask, toggleTask } from './js/tasks.js';
+import { initTasks, addTask, toggleTask, setGoogleSyncHooks } from './js/tasks.js';
 import { initCalendar, openAddEventModal } from './js/calendar.js';
-import { initEmails, openEmailDetail, playNotificationSound } from './js/email.js';
+import { initEmails, openEmailDetail, playNotificationSound, renderEmails } from './js/email.js';
 import { initCommandPalette } from './js/commandPalette.js';
 import { initNotifications, addNotification } from './js/notifications.js';
 import { initNotes } from './js/notes.js';
+import { initGoogleAuth, signIn, signOut, isSignedIn, getProfile } from './js/google.js';
+import { fetchGmailMessages, openInGmail, markGmailRead } from './js/gmail.js';
+import { initGoogleTasks, fetchGoogleTasks, createGoogleTask, completeGoogleTask, deleteGoogleTask } from './js/googleTasks.js';
 
 // DOM elements
 const sidebar = document.getElementById('sidebar');
@@ -55,6 +58,10 @@ setupTheme();
 setupSound();
 setupNavigation();
 setupMobileNav();
+
+// Initialize Google Auth (loads GIS script in background)
+initGoogleAuth(handleGoogleSignIn);
+setupGoogleBtn();
 
 console.log('Aether Dashboard initialized.');
 
@@ -307,4 +314,113 @@ function setupMobileNav() {
     mobTasks.classList.add('active');
     widgets.forEach(w => { if (w && w !== tasksWidget) w.style.display = 'none'; });
   });
+}
+
+// ============================================================
+// GOOGLE INTEGRATION — Connect button + post-auth data sync
+// ============================================================
+
+function setupGoogleBtn() {
+  const btn = document.getElementById('google-connect-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    if (isSignedIn()) {
+      signOut();
+      updateGoogleBtnUI(null);
+      showVisualNotification('Google Disconnected', 'Your Google account has been disconnected.');
+    } else {
+      signIn();
+    }
+  });
+}
+
+async function handleGoogleSignIn(token, profile) {
+  console.log('Google signed in:', profile?.email);
+  updateGoogleBtnUI(profile);
+  showVisualNotification('Google Connected ✓', `Signed in as ${profile?.email || 'your account'}`);
+  addNotification('Google Connected', profile?.email || '', 'system');
+  playNotificationSound();
+
+  // --- Fetch Gmail ---
+  showLoadingState('email-widget', true);
+  try {
+    const gmailMessages = await fetchGmailMessages(15);
+    if (gmailMessages.length > 0) {
+      state.emails = state.emails.filter(m => !m.id.startsWith('gmail_'));
+      state.emails = [...gmailMessages, ...state.emails];
+      handleStateChange('emails', state.emails);
+      renderEmails();
+      addNotification('Gmail Synced', `${gmailMessages.length} unread message(s) loaded`, 'gmail');
+    }
+  } catch (e) {
+    console.error('Gmail sync error:', e);
+    showVisualNotification('Gmail Error', 'Could not load Gmail. Please try reconnecting.');
+  }
+  showLoadingState('email-widget', false);
+
+  // --- Fetch Google Tasks ---
+  showLoadingState('tasks-widget', true);
+  try {
+    const ready = await initGoogleTasks();
+    if (ready) {
+      const googleTasks = await fetchGoogleTasks();
+      if (googleTasks.length > 0) {
+        state.tasks = state.tasks.filter(t => t.source !== 'google');
+        googleTasks.forEach(t => addTask(t));
+        addNotification('Google Tasks Synced', `${googleTasks.length} task(s) loaded`, 'task');
+      }
+    }
+  } catch (e) {
+    console.error('Google Tasks sync error:', e);
+  }
+  showLoadingState('tasks-widget', false);
+
+  // --- Bidirectional task sync hooks ---
+  setGoogleSyncHooks({
+    onAdd: async (task) => {
+      const gId = await createGoogleTask(task.text);
+      if (gId) {
+        state.tasks = state.tasks.map(t =>
+          t.id === task.id ? { ...t, googleTaskId: gId, source: 'google' } : t
+        );
+        handleStateChange('tasks', state.tasks);
+      }
+    },
+    onToggle: (task) => {
+      if (task.googleTaskId && task.completed) completeGoogleTask(task.googleTaskId);
+    },
+    onDelete: (task) => {
+      if (task.googleTaskId) deleteGoogleTask(task.googleTaskId);
+    },
+  });
+}
+
+function updateGoogleBtnUI(profile) {
+  const btn = document.getElementById('google-connect-btn');
+  const avatar = document.getElementById('google-avatar');
+  const label = document.getElementById('google-btn-label');
+  if (!btn) return;
+
+  if (profile) {
+    btn.title = `${profile.email} — click to disconnect`;
+    btn.style.borderColor = 'var(--accent-green)';
+    if (avatar) {
+      avatar.innerHTML = profile.picture
+        ? `<img src="${profile.picture}" style="width:20px;height:20px;border-radius:50%;" alt="">`
+        : `<span style="width:20px;height:20px;border-radius:50%;background:var(--accent-purple);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;">${(profile.name || 'G').charAt(0)}</span>`;
+    }
+    if (label) label.textContent = profile.name?.split(' ')[0] || 'Google';
+  } else {
+    btn.title = 'Connect Google Account';
+    btn.style.borderColor = '';
+    if (avatar) avatar.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>`;
+    if (label) label.textContent = 'Connect Google';
+  }
+}
+
+function showLoadingState(widgetId, loading) {
+  const w = document.getElementById(widgetId);
+  if (!w) return;
+  w.style.opacity = loading ? '0.6' : '1';
+  w.style.pointerEvents = loading ? 'none' : '';
 }
