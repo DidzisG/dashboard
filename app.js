@@ -1,0 +1,310 @@
+// Main Application Orchestrator (Aether Dashboard)
+
+import { loadState, updateField } from './js/db.js';
+import { initTasks, addTask, toggleTask } from './js/tasks.js';
+import { initCalendar, openAddEventModal } from './js/calendar.js';
+import { initEmails, openEmailDetail, playNotificationSound } from './js/email.js';
+import { initCommandPalette } from './js/commandPalette.js';
+import { initNotifications, addNotification } from './js/notifications.js';
+import { initNotes } from './js/notes.js';
+
+// DOM elements
+const sidebar = document.getElementById('sidebar');
+const collapseBtn = document.getElementById('sidebar-collapse-btn');
+const collapseIcon = document.getElementById('collapse-icon');
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
+const themeIcon = document.getElementById('theme-icon');
+const soundToggleBtn = document.getElementById('sound-toggle-btn');
+const soundIcon = document.getElementById('sound-icon');
+
+// Navigation links
+const navDashboard = document.getElementById('nav-dashboard');
+const navEmails = document.getElementById('nav-emails');
+const navCalendar = document.getElementById('nav-calendar');
+const navTasks = document.getElementById('nav-tasks');
+
+// Mobile tabs
+const mobDashboard = document.getElementById('mob-tab-dashboard');
+const mobEmails = document.getElementById('mob-tab-emails');
+const mobCalendar = document.getElementById('mob-tab-calendar');
+const mobTasks = document.getElementById('mob-tab-tasks');
+const mobEmailBadge = document.getElementById('mob-email-badge');
+
+// Widget sections
+const emailWidget = document.getElementById('email-widget');
+const calendarWidget = document.getElementById('calendar-widget');
+const tasksWidget = document.getElementById('tasks-widget');
+const notesWidget = document.getElementById('notes-widget');
+
+let state = null;
+let saveDebounceTimer = null;
+
+// ES modules are deferred — DOM is ready by the time this runs
+state = loadState();
+if (!state.notifications) state.notifications = [];
+
+initTasks(state, handleStateChange);
+initEmails(state, handleStateChange, handleSyncCommand);
+initCalendar(state, handleStateChange);
+initCommandPalette(state, handleStateChange, handleCommandPaletteRoute);
+initNotifications(state, handleStateChange);
+initNotes(state, handleStateChange);
+
+setupSidebar();
+setupTheme();
+setupSound();
+setupNavigation();
+setupMobileNav();
+
+console.log('Aether Dashboard initialized.');
+
+// Sync data changes across modules
+function handleStateChange(key, value) {
+  state = updateField(key, value);
+}
+
+function handleSyncCommand(type, data) {
+  if (type === 'task') {
+    addTask(data.text, data.priority);
+    addNotification('Task Created', data.text, 'task');
+    showVisualNotification('Task Created', `“${data.text}”`);
+    playNotificationSound();
+  } else if (type === 'email_received') {
+    addNotification(data.sender, data.subject, data.category);
+    // Update mobile badge
+    const unread = state.emails ? state.emails.filter(m => !m.read).length : 0;
+    if (mobEmailBadge) {
+      mobEmailBadge.innerText = unread;
+      mobEmailBadge.style.display = unread > 0 ? 'flex' : 'none';
+    }
+  }
+}
+
+// Router parsing commands executed from Command Palette
+function handleCommandPaletteRoute(commandType, param) {
+  if (commandType === 'create_task') {
+    if (param) {
+      addTask(param, 'medium');
+      showVisualNotification('Task Created', `Added: "${param}"`);
+      playNotificationSound();
+    }
+  } else if (commandType === 'create_event') {
+    // Open calendar event modal with prefilled title
+    openAddEventModal();
+    const titleField = document.getElementById('event-title');
+    if (titleField && param) {
+      titleField.value = param;
+    }
+  } else if (commandType === 'toggle_theme') {
+    toggleTheme();
+  } else if (commandType === 'toggle_sound') {
+    toggleSound();
+  } else if (commandType === 'reset_data') {
+    if (confirm('Are you sure you want to reset all data? This will clear custom tasks and emails.')) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  } else if (commandType === 'route_result') {
+    // Dynamic navigation routing
+    if (param.startsWith('open_email_')) {
+      const emailId = param.replace('open_email_', '');
+      openEmailDetail(emailId);
+    } else if (param.startsWith('toggle_task_')) {
+      const taskId = param.replace('toggle_task_', '');
+      toggleTask(taskId);
+    } else if (param.startsWith('select_day_')) {
+      const dateStr = param.replace('select_day_', '');
+      const parts = dateStr.split('-');
+      // Navigate calendar date context
+      const targetDate = new Date(parts[0], parts[1] - 1, parts[2]);
+      
+      // Update selected date directly
+      const prevDate = new Date(targetDate);
+      document.dispatchEvent(new CustomEvent('calendar-select-date', { detail: targetDate }));
+      
+      // Focus Calendar section visually
+      calendarWidget.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+}
+
+function showVisualNotification(title, message) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.style.borderLeftColor = 'var(--accent-purple)';
+  toast.innerHTML = `
+    <div class="toast-content">
+      <span class="toast-title" style="font-weight:700;">${title}</span>
+      <span class="toast-message">${message}</span>
+    </div>
+    <button class="toast-close">×</button>
+  `;
+
+  toast.querySelector('.toast-close').addEventListener('click', () => toast.remove());
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.5s ease';
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 500);
+  }, 4000);
+}
+
+// Navigation Tabs Filter (Ergonomics routing)
+function setupNavigation() {
+  const links = [navDashboard, navEmails, navCalendar, navTasks];
+  const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget];
+
+  const resetViews = () => {
+    links.forEach(l => l?.classList.remove('active'));
+    widgets.forEach(w => {
+      if (w) {
+        w.style.display = 'flex'; // Reset grid defaults
+        w.style.opacity = '1';
+      }
+    });
+  };
+
+  navDashboard?.addEventListener('click', (e) => {
+    e.preventDefault();
+    resetViews();
+    navDashboard.classList.add('active');
+  });
+
+  navEmails?.addEventListener('click', (e) => {
+    e.preventDefault();
+    resetViews();
+    navEmails.classList.add('active');
+    // Hide others to focus Inbox list only
+    widgets.forEach(w => {
+      if (w && w !== emailWidget) w.style.display = 'none';
+    });
+  });
+
+  navCalendar?.addEventListener('click', (e) => {
+    e.preventDefault();
+    resetViews();
+    navCalendar.classList.add('active');
+    // Hide others to focus Calendar grid only
+    widgets.forEach(w => {
+      if (w && w !== calendarWidget) w.style.display = 'none';
+    });
+  });
+
+  navTasks?.addEventListener('click', (e) => {
+    e.preventDefault();
+    resetViews();
+    navTasks.classList.add('active');
+    // Hide others to focus Tasks only
+    widgets.forEach(w => {
+      if (w && w !== tasksWidget) w.style.display = 'none';
+    });
+  });
+}
+
+// Collapsible Sidebar controls
+function setupSidebar() {
+  const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+  if (isCollapsed) {
+    sidebar.classList.add('collapsed');
+    updateSidebarIcon(true);
+  }
+
+  collapseBtn?.addEventListener('click', () => {
+    const collapsed = sidebar.classList.toggle('collapsed');
+    localStorage.setItem('sidebar_collapsed', collapsed);
+    updateSidebarIcon(collapsed);
+  });
+}
+
+function updateSidebarIcon(collapsed) {
+  if (collapseIcon) {
+    collapseIcon.innerHTML = collapsed 
+      ? `<polyline points="13 5 18 10 13 15"/><line x1="6" y1="5" x2="6" y2="19"/>`
+      : `<polyline points="11 17 6 12 11 7"/><line x1="18" y1="19" x2="18" y2="5"/>`;
+  }
+}
+
+// Light / Dark Theme toggles
+function setupTheme() {
+  if (state.settings.theme === 'light') {
+    document.body.classList.add('light-theme');
+    updateThemeIcon('light');
+  }
+
+  themeToggleBtn?.addEventListener('click', toggleTheme);
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-theme');
+  const newTheme = isLight ? 'light' : 'dark';
+  
+  state.settings.theme = newTheme;
+  handleStateChange('settings', state.settings);
+  updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+  if (themeIcon) {
+    themeIcon.innerHTML = theme === 'light'
+      ? `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`
+      : `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+  }
+}
+
+// Sound alerts toggles
+function setupSound() {
+  updateSoundIcon(state.settings.sound);
+  soundToggleBtn?.addEventListener('click', toggleSound);
+}
+
+function toggleSound() {
+  const isEnabled = !state.settings.sound;
+  state.settings.sound = isEnabled;
+  handleStateChange('settings', state.settings);
+  updateSoundIcon(isEnabled);
+}
+
+function updateSoundIcon(enabled) {
+  if (soundIcon) {
+    soundIcon.innerHTML = enabled
+      ? `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>`
+      : `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`;
+  }
+}
+
+// Notes editor auto-save is now handled by js/notes.js
+
+// Mobile Bottom Tab Bar
+function setupMobileNav() {
+  const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget];
+  const mobileTabs = [mobDashboard, mobEmails, mobCalendar, mobTasks];
+
+  const resetMobileTabs = () => mobileTabs.forEach(t => t?.classList.remove('active'));
+  const resetWidgets = () => widgets.forEach(w => { if (w) w.style.display = 'flex'; });
+
+  mobDashboard?.addEventListener('click', () => {
+    resetMobileTabs(); resetWidgets();
+    mobDashboard.classList.add('active');
+  });
+
+  mobEmails?.addEventListener('click', () => {
+    resetMobileTabs(); resetWidgets();
+    mobEmails.classList.add('active');
+    widgets.forEach(w => { if (w && w !== emailWidget) w.style.display = 'none'; });
+  });
+
+  mobCalendar?.addEventListener('click', () => {
+    resetMobileTabs(); resetWidgets();
+    mobCalendar.classList.add('active');
+    widgets.forEach(w => { if (w && w !== calendarWidget) w.style.display = 'none'; });
+  });
+
+  mobTasks?.addEventListener('click', () => {
+    resetMobileTabs(); resetWidgets();
+    mobTasks.classList.add('active');
+    widgets.forEach(w => { if (w && w !== tasksWidget) w.style.display = 'none'; });
+  });
+}

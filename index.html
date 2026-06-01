@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aether Dashboard - Modern Workspace</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app-container" style="width: 100%; height: 100%; display: flex;">
+    
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+      <div>
+        <div class="brand">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span>Aether</span>
+        </div>
+        <ul class="nav-links">
+          <li class="nav-item">
+            <a class="nav-link active" id="nav-dashboard">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav-emails">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span>Inbox</span>
+              <span id="inbox-unread-badge" style="margin-left: auto; background: var(--accent-rose); color: white; font-size: 10px; font-weight: 700; border-radius: 50%; width: 18px; height: 18px; display: none; align-items: center; justify-content: center; flex-shrink: 0;"></span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav-calendar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span>Calendar</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav-tasks">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              <span>Tasks</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" id="sidebar-collapse-btn" title="Toggle Sidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="collapse-icon"><polyline points="11 17 6 12 11 7"/><line x1="18" y1="19" x2="18" y2="5"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div id="main-content">
+      
+      <!-- Header -->
+      <header>
+        <div class="header-left">
+          <div class="command-tip" id="command-trigger" title="Launch command bar">
+            Press <kbd>⌘ K</kbd> or click to search
+          </div>
+        </div>
+        
+        <div class="header-right">
+          <!-- Sound Alert Button Toggle -->
+          <button id="sound-toggle-btn" title="Toggle Notifications Sound">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sound-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+
+          <!-- Notification Bell -->
+          <button id="notif-bell-btn" title="Open Notification Center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span id="notif-bell-badge"></span>
+          </button>
+          
+          <!-- Theme Toggle -->
+          <button id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="theme-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+
+          <!-- Simulated status bar -->
+          <div class="system-status">
+            <span class="status-dot"></span>
+            <span id="system-status-text">Sim Engine Active</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Widgets Layout Grid -->
+      <main class="dashboard-grid">
+        
+        <!-- Widget: Incoming Emails Notifications -->
+        <section class="widget glass-panel" id="email-widget">
+          <div class="widget-header">
+            <h2 class="widget-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Inbox Notifications
+            </h2>
+            <div class="widget-actions">
+              <button class="widget-btn active" id="email-filter-all">All</button>
+              <button class="widget-btn" id="email-filter-unread">Unread</button>
+              <button class="widget-btn" id="email-trigger-incoming" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Trigger Sim Mail
+              </button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div class="email-list" id="email-list-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Widget: Calendar & Daily Agenda -->
+        <section class="widget glass-panel" id="calendar-widget">
+          <div class="widget-header">
+            <h2 class="widget-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Calendar & Schedule
+            </h2>
+            <div class="widget-actions">
+              <button class="widget-btn" id="calendar-btn-today">Today</button>
+              <button class="widget-btn" id="calendar-btn-add" style="border-color: var(--accent-purple); color: var(--accent-purple);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Event
+              </button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div class="calendar-container">
+              <!-- Calendar Navigation controls -->
+              <div class="calendar-header">
+                <span id="calendar-month-year">June 2026</span>
+                <div style="display: flex; gap: 6px;">
+                  <button class="calendar-nav-btn" id="calendar-prev-month" title="Previous Month">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <button class="calendar-nav-btn" id="calendar-next-month" title="Next Month">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Calendar Grid -->
+              <div class="calendar-grid" id="calendar-grid-container">
+                <!-- Weekdays and Dates populate dynamically -->
+              </div>
+              
+              <!-- Selected Day Agenda Preview -->
+              <div class="agenda-preview">
+                <div class="agenda-title">
+                  <span id="agenda-date-label">Schedule for Today</span>
+                  <span class="badge" id="agenda-count-badge" style="position: static; display: inline-flex; width: 14px; height: 14px; border: none; font-size: 8px;">0</span>
+                </div>
+                <div class="agenda-list" id="agenda-list-container">
+                  <!-- Dynamically populated events -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Widget: Task List -->
+        <section class="widget glass-panel" id="tasks-widget">
+          <div class="widget-header">
+            <h2 class="widget-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Task Management
+            </h2>
+            <div class="widget-actions">
+              <button class="widget-btn active" id="task-filter-all">All</button>
+              <button class="widget-btn" id="task-filter-pending">Pending</button>
+              <button class="widget-btn" id="task-filter-completed">Completed</button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div class="task-container">
+              <!-- Quick Task Creator form -->
+              <form class="task-form" id="task-create-form" onsubmit="event.preventDefault();">
+                <input type="text" class="task-input" id="task-input-field" placeholder="Add ergonomic task... (e.g. Call client /prio high)" autocomplete="off">
+                <select class="task-select" id="task-prio-select">
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="low">Low</option>
+                </select>
+                <button class="task-submit-btn" type="submit">Add</button>
+              </form>
+              <!-- Tasks Scrollable List -->
+              <div class="task-list" id="task-list-container">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Widget: Scratchpad Notes -->
+        <section class="widget glass-panel" id="notes-widget">
+          <div class="widget-header">
+            <h2 class="widget-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Notes Scratchpad
+            </h2>
+            <div class="widget-actions">
+              <button class="preview-toggle-btn" id="notes-preview-toggle">Preview</button>
+              <span id="notes-save-status" style="font-size: 0.7rem; color: var(--text-muted);">Saved</span>
+            </div>
+          </div>
+          <div class="widget-content" style="padding-top: 4px; display: flex; flex-direction: column;">
+            <div class="notes-container" style="display: flex; flex-direction: column; flex-grow: 1;">
+              <textarea class="notes-editor" id="notes-textarea" placeholder="Start typing notes... Supports **bold**, *italic*, # headings, - lists, `code`"></textarea>
+              <div class="notes-preview" id="notes-preview-pane"></div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Command Palette Modal -->
+  <div id="command-palette">
+    <div class="cp-search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="cp-input" id="cp-input-search" placeholder="Type a search query or command... (e.g. /task finish dashboard)" autocomplete="off">
+    </div>
+    <div class="cp-results" id="cp-results-container">
+      <!-- Search results and lists populate dynamically -->
+    </div>
+  </div>
+
+  <!-- Dialog Modal: Email Details Viewer -->
+  <dialog id="email-detail-dialog">
+    <div class="modal-header">
+      <h3 class="modal-title" id="email-modal-subject">Email Subject</h3>
+      <button class="modal-close-btn" id="email-modal-close" title="Close dialog">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 15px; font-size: 0.8rem;">
+        <div>
+          <span style="color: var(--text-muted);">From: </span>
+          <span id="email-modal-from" style="font-weight:600; color: var(--text-primary);">sender@domain.com</span>
+        </div>
+        <div id="email-modal-time" style="color: var(--text-muted);">Time stamp</div>
+      </div>
+      <div id="email-modal-body" style="white-space: pre-wrap; font-size: 0.85rem; color: var(--text-secondary);">
+        Email content goes here.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn" id="email-modal-create-task" style="border-color: var(--accent-purple); color: var(--accent-purple);">Convert to Task</button>
+      <button class="modal-btn primary" id="email-modal-done">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Dialog Modal: Calendar Event Add/Edit -->
+  <dialog id="calendar-event-dialog">
+    <div class="modal-header">
+      <h3 class="modal-title" id="event-modal-title-label">Schedule New Event</h3>
+      <button class="modal-close-btn" id="event-modal-close" title="Close dialog">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="event-modal-form" onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <label for="event-title" style="font-size: 0.75rem; color: var(--text-secondary);">Event Title</label>
+          <input type="text" class="task-input" id="event-title" placeholder="Meeting with CEO, Code deployment..." required autocomplete="off">
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label for="event-date" style="font-size: 0.75rem; color: var(--text-secondary);">Date</label>
+            <input type="date" class="task-input" id="event-date" required>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label for="event-time" style="font-size: 0.75rem; color: var(--text-secondary);">Time</label>
+            <input type="time" class="task-input" id="event-time" required>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <label for="event-type" style="font-size: 0.75rem; color: var(--text-secondary);">Event Type</label>
+          <select class="task-select" id="event-type" style="width: 100%;">
+            <option value="meeting">Meeting (Cyan)</option>
+            <option value="task">Regular Action (Purple)</option>
+            <option value="deadline">Critical Deadline (Rose)</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn" id="event-modal-cancel">Cancel</button>
+      <button class="modal-btn primary" id="event-modal-save">Save Event</button>
+    </div>
+  </dialog>
+
+  <!-- Toast Notification Hub -->
+  <div id="toast-container"></div>
+
+  <!-- Notification Center Drawer -->
+  <div id="notif-overlay"></div>
+  <aside id="notif-drawer">
+    <div class="notif-drawer-header">
+      <div class="notif-drawer-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="notif-drawer-actions">
+          <button class="notif-action-btn" id="notif-mark-all-read">Mark all read</button>
+          <button class="notif-action-btn" id="notif-clear-all">Clear all</button>
+        </div>
+        <button class="notif-close-btn" id="notif-close-btn">×</button>
+      </div>
+    </div>
+    <div class="notif-list" id="notif-list-container">
+      <!-- Populated by JS -->
+    </div>
+  </aside>
+
+  <!-- Mobile Bottom Tab Bar -->
+  <nav id="mobile-tab-bar">
+    <button class="mobile-tab active" id="mob-tab-dashboard">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      Home
+    </button>
+    <button class="mobile-tab" id="mob-tab-emails">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span id="mob-email-badge" class="mobile-tab-badge"></span>
+      Inbox
+    </button>
+    <button class="mobile-tab" id="mob-tab-calendar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendar
+    </button>
+    <button class="mobile-tab" id="mob-tab-tasks">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Tasks
+    </button>
+  </nav>
+
+  <!-- Application JS Mounting -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
