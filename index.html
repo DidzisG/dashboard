@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aether Dashboard - Modern Workspace</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css"/>
 </head>
 <body>
   <div id="app-container" style="width: 100%; height: 100%; display: flex;">
@@ -86,6 +87,13 @@
             <span id="google-btn-label">Connect Google</span>
           </button>
           
+          <!-- Workspace Presets -->
+          <select id="workspace-preset" title="Workspace Presets" aria-label="Workspace Presets" class="task-select" style="padding: 4px 8px; font-size: 0.7rem; border-radius: 6px;">
+            <option value="default">Default Layout</option>
+            <option value="focus">Deep Focus</option>
+            <option value="comms">Communication</option>
+          </select>
+
           <!-- Theme Toggle -->
           <button id="theme-toggle-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Light/Dark Theme">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="theme-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -375,6 +383,7 @@
   </nav>
 
   <!-- Application JS Mounting -->
+  <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -67,6 +67,8 @@ setupMobileNav();
 initGoogleAuth(handleGoogleSignIn);
 setupGoogleBtn();
 
+initOnboarding();
+
 console.log('Aether Dashboard initialized.');
 
 // Sync data changes across modules
@@ -249,12 +251,74 @@ function setupTheme() {
   themeToggleBtn?.addEventListener('click', toggleTheme);
 }
 
+// Interactive Onboarding using Driver.js
+function initOnboarding() {
+  if (localStorage.getItem('hasSeenOnboarding') === 'true') {
+    return;
+  }
+
+  // Allow DOM to fully render first
+  setTimeout(() => {
+    try {
+      const driverObj = window.driver.js.driver({
+        showProgress: true,
+        steps: [
+          {
+            element: '#google-connect-btn',
+            popover: {
+              title: 'Welcome to Aether',
+              description: 'Connect your Google account to sync your real Gmail and Tasks seamlessly.',
+              side: 'bottom',
+              align: 'start'
+            }
+          },
+          {
+            element: '.dashboard-grid',
+            popover: {
+              title: 'Your Workspace',
+              description: 'This is your modular workspace. Drag widget headers to arrange them, or drag the bottom-right corner to resize!',
+              side: 'top',
+              align: 'center'
+            }
+          },
+          {
+            element: '#sidebar',
+            popover: {
+              title: 'Navigation',
+              description: 'Switch between your Inbox, Calendar, and Kanban boards here.',
+              side: 'right',
+              align: 'start'
+            }
+          },
+          {
+            element: '#command-trigger',
+            popover: {
+              title: 'Command Palette',
+              description: 'Press Cmd+K (or click here) at any time to launch the quick command palette.',
+              side: 'bottom',
+              align: 'start'
+            }
+          }
+        ],
+        onDestroyStarted: () => {
+          if (!driverObj.hasNextStep() || confirm('Are you sure you want to skip the tutorial?')) {
+            localStorage.setItem('hasSeenOnboarding', 'true');
+            driverObj.destroy();
+          }
+        }
+      });
+      driverObj.drive();
+    } catch (e) {
+      console.warn('Driver.js not loaded', e);
+    }
+  }, 1000);
+}
+
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light-theme');
   const newTheme = isLight ? 'light' : 'dark';
   
-  state.settings.theme = newTheme;
-  handleStateChange('settings', state.settings);
+  handleStateChange('settings', { ...state.settings, theme: newTheme });
   updateThemeIcon(newTheme);
 }
 
@@ -264,6 +328,26 @@ function updateThemeIcon(theme) {
       ? `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`
       : `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
   }
+}
+
+// Workspace Presets Logic
+const presetSelect = document.getElementById('workspace-preset');
+if (presetSelect) {
+  presetSelect.addEventListener('change', (e) => {
+    const preset = e.target.value;
+    const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget];
+    
+    // Reset display
+    widgets.forEach(w => { if (w) w.style.display = 'flex'; });
+    
+    if (preset === 'focus') {
+      if (emailWidget) emailWidget.style.display = 'none';
+      if (calendarWidget) calendarWidget.style.display = 'none';
+    } else if (preset === 'comms') {
+      if (tasksWidget) tasksWidget.style.display = 'none';
+      if (notesWidget) notesWidget.style.display = 'none';
+    }
+  });
 }
 
 // Sound alerts toggles
