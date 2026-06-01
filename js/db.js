@@ -10,6 +10,12 @@ const getRelativeDate = (offsetDays) => {
 };
 
 const DEFAULT_STATE = {
+  layout: {
+    'email-widget':    { x: 30, y: 30, w: 400, h: 350, z: 1 },
+    'calendar-widget': { x: 450, y: 30, w: 400, h: 350, z: 2 },
+    'tasks-widget':    { x: 30, y: 400, w: 600, h: 400, z: 3 },
+    'notes-widget':    { x: 650, y: 400, w: 400, h: 400, z: 4 }
+  },
   tasks: [
     { id: 't1', text: 'Design ergonomic command palette shortcut keys', completed: false, priority: 'high', dateCreated: getRelativeDate(0) },
     { id: 't2', text: 'Refactor dashboard glassmorphism CSS styling rules', completed: true, priority: 'medium', dateCreated: getRelativeDate(-1) },

@@ -187,10 +187,10 @@
             </div>
           </div>
           <div class="widget-content">
-            <div class="task-container">
+            <div class="task-container" style="display:flex; flex-direction:column; height:100%;">
               <!-- Quick Task Creator form -->
-              <form class="task-form" id="task-create-form" onsubmit="event.preventDefault();">
-                <input type="text" class="task-input" id="task-input-field" placeholder="Add ergonomic task... (e.g. Call client /prio high)" autocomplete="off">
+              <form class="task-form" id="task-create-form" onsubmit="event.preventDefault();" style="margin-bottom: 12px;">
+                <input type="text" class="task-input" id="task-input-field" placeholder="Add task... (e.g. Call client /prio high)" autocomplete="off">
                 <select class="task-select" id="task-prio-select">
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
@@ -198,9 +198,32 @@
                 </select>
                 <button class="task-submit-btn" type="submit">Add</button>
               </form>
-              <!-- Tasks Scrollable List -->
-              <div class="task-list" id="task-list-container">
-                <!-- Dynamically populated -->
+              
+              <!-- Kanban Board -->
+              <div class="kanban-board">
+                <div class="kanban-col" id="kanban-todo">
+                  <div class="kanban-col-header">
+                    <span>To Do</span>
+                    <span class="kanban-col-count" id="count-todo">0</span>
+                  </div>
+                  <div class="kanban-items" data-status="todo"></div>
+                </div>
+                
+                <div class="kanban-col" id="kanban-in-progress">
+                  <div class="kanban-col-header">
+                    <span style="color: var(--accent-cyan);">In Progress</span>
+                    <span class="kanban-col-count" id="count-in-progress">0</span>
+                  </div>
+                  <div class="kanban-items" data-status="in-progress"></div>
+                </div>
+                
+                <div class="kanban-col" id="kanban-done">
+                  <div class="kanban-col-header">
+                    <span style="color: var(--accent-green);">Done</span>
+                    <span class="kanban-col-count" id="count-done">0</span>
+                  </div>
+                  <div class="kanban-items" data-status="done"></div>
+                </div>
               </div>
             </div>
           </div>

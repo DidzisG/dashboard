@@ -173,8 +173,15 @@ function getSortedTasks() {
 }
 
 export function renderTasks() {
-  if (!tasksContainer) return;
-  tasksContainer.innerHTML = '';
+  const cols = {
+    todo: document.querySelector('.kanban-items[data-status="todo"]'),
+    'in-progress': document.querySelector('.kanban-items[data-status="in-progress"]'),
+    done: document.querySelector('.kanban-items[data-status="done"]')
+  };
+  
+  if (!cols.todo) return; // not found
+  
+  Object.values(cols).forEach(col => { col.innerHTML = ''; });
 
   let sortedTasks = getSortedTasks();
 
@@ -185,44 +192,110 @@ export function renderTasks() {
     sortedTasks = sortedTasks.filter(t => t.completed);
   }
 
-  if (sortedTasks.length === 0) {
-    tasksContainer.innerHTML = `
-      <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 24px 0;">
-        No tasks in this category
-      </div>
-    `;
-    return;
-  }
+  const counts = { todo: 0, 'in-progress': 0, done: 0 };
 
   sortedTasks.forEach(task => {
+    // Derive Kanban status
+    let status = task.completed ? 'done' : (task.status || 'todo');
+    
+    // In case of invalid status, fallback to todo
+    if (!cols[status]) status = 'todo';
+    
+    counts[status]++;
+
     const item = document.createElement('div');
-    item.className = `task-item ${task.completed ? 'completed' : ''}`;
+    item.className = `kanban-item ${task.completed ? 'completed' : ''}`;
     item.dataset.id = task.id;
+    item.draggable = true;
 
     item.innerHTML = `
-      <div class="task-item-left">
-        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
-        <span class="task-text" title="${escapeHtml(task.text)}">${escapeHtml(task.text)}</span>
-        <span class="task-prio-tag prio-${task.priority}">${task.priority}</span>
-        ${task.source === 'google' ? '<span class="task-google-badge" title="Synced from Google Tasks">G</span>' : ''}
+      <div class="kanban-item-title" title="${escapeHtml(task.text)}">
+        ${escapeHtml(task.text)}
       </div>
-      <button class="task-delete-btn" title="Delete Task">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-      </button>
+      <div class="kanban-item-footer">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="task-prio-tag prio-${task.priority}">${task.priority}</span>
+          ${task.source === 'google' ? '<span class="task-google-badge" title="Synced from Google Tasks">G</span>' : ''}
+        </div>
+        <button class="task-delete-btn" title="Delete Task">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </button>
+      </div>
     `;
 
-    // Hook listeners
-    const checkbox = item.querySelector('.task-checkbox');
-    checkbox.addEventListener('change', () => toggleTask(task.id));
-
+    // Delete
     const deleteBtn = item.querySelector('.task-delete-btn');
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       deleteTask(task.id);
     });
+    
+    // Double click to complete / uncomplete
+    item.addEventListener('dblclick', () => {
+      toggleTask(task.id);
+    });
 
-    tasksContainer.appendChild(item);
+    // Drag events
+    item.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', task.id);
+      setTimeout(() => item.style.opacity = '0.5', 0);
+    });
+    
+    item.addEventListener('dragend', () => {
+      item.style.opacity = '1';
+    });
+
+    cols[status].appendChild(item);
   });
+  
+  // Update badges
+  document.getElementById('count-todo').textContent = counts.todo;
+  document.getElementById('count-in-progress').textContent = counts['in-progress'];
+  document.getElementById('count-done').textContent = counts.done;
+  
+  // Setup Drop Zones
+  Object.entries(cols).forEach(([status, col]) => {
+    col.addEventListener('dragover', (e) => {
+      e.preventDefault(); // allow drop
+      col.classList.add('kanban-drag-over');
+    });
+    
+    col.addEventListener('dragleave', () => {
+      col.classList.remove('kanban-drag-over');
+    });
+    
+    col.addEventListener('drop', (e) => {
+      e.preventDefault();
+      col.classList.remove('kanban-drag-over');
+      const taskId = e.dataTransfer.getData('text/plain');
+      moveTask(taskId, status);
+    });
+  });
+}
+
+function moveTask(id, newStatus) {
+  let movedTask = null;
+  appState.tasks = appState.tasks.map(task => {
+    if (task.id === id) {
+      movedTask = { ...task };
+      movedTask.status = newStatus;
+      
+      const wasCompleted = movedTask.completed;
+      movedTask.completed = (newStatus === 'done');
+      
+      // If completed state changed, trigger sync hook
+      if (wasCompleted !== movedTask.completed) {
+        if (onTaskToggleHook) onTaskToggleHook(movedTask);
+      }
+      return movedTask;
+    }
+    return task;
+  });
+  
+  if (movedTask) {
+    saveCallback('tasks', appState.tasks);
+    renderTasks();
+  }
 }
 
 function escapeHtml(text) {

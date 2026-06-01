@@ -46,6 +46,9 @@ let saveDebounceTimer = null;
 state = loadState();
 if (!state.notifications) state.notifications = [];
 
+// Initialize drag/resize window manager
+initWindowManager(state, handleStateChange);
+
 initTasks(state, handleStateChange);
 initEmails(state, handleStateChange, handleSyncCommand);
 initCalendar(state, handleStateChange);
@@ -374,8 +377,20 @@ async function handleGoogleSignIn(token, profile) {
     if (ready) {
       const googleTasks = await fetchGoogleTasks();
       if (googleTasks.length > 0) {
+        // Preserve local Kanban status during sync
+        const localGTasks = new Map(state.tasks.filter(t => t.source === 'google').map(t => [t.googleTaskId, t]));
+        
         state.tasks = state.tasks.filter(t => t.source !== 'google');
-        googleTasks.forEach(t => addTask(t));
+        
+        googleTasks.forEach(t => {
+          const existing = localGTasks.get(t.googleTaskId);
+          if (existing && existing.status === 'in-progress' && !t.completed) {
+            t.status = 'in-progress';
+          } else {
+            t.status = t.completed ? 'done' : 'todo';
+          }
+          addTask(t);
+        });
         addNotification('Google Tasks Synced', `${googleTasks.length} task(s) loaded`, 'task');
       }
     }
