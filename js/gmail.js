@@ -48,10 +48,20 @@ async function fetchMessageMeta(id) {
   const subject  = get('Subject') || '(no subject)';
   const rawDate  = get('Date');
 
-  // Parse "Name <email>" format
-  const fromMatch = rawFrom.match(/^"?([^"<]+?)"?\s*<?([^>]*)>?\s*$/);
-  const senderName  = (fromMatch?.[1] || rawFrom).trim().replace(/^"|"$/g, '');
-  const senderEmail = (fromMatch?.[2] || rawFrom).trim();
+  // Parse "Name <email>" format robustly
+  let senderName = '';
+  let senderEmail = '';
+  const fromMatch = rawFrom.match(/^(.*?)\s*<([^>]+)>/);
+  if (fromMatch) {
+    senderName = fromMatch[1].replace(/^"|"$/g, '').trim();
+    senderEmail = fromMatch[2].trim();
+  } else {
+    senderName = rawFrom.replace(/^"|"$/g, '').trim();
+    senderEmail = rawFrom.trim();
+  }
+  if (!senderName) {
+    senderName = senderEmail.split('@')[0] || senderEmail;
+  }
 
   const date = rawDate ? new Date(rawDate) : new Date();
   const isUnread = (data.labelIds || []).includes('UNREAD');
