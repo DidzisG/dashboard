@@ -1888,3 +1888,38 @@ body {
   border-color: var(--card-border) !important;
 }
 
+/* ----------------------------------
+   EasyMDE Custom Dark Styles
+   ---------------------------------- */
+.editor-toolbar {
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--card-border) !important;
+  border-bottom: none !important;
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0 !important;
+  opacity: 1 !important;
+}
+.editor-toolbar > button {
+  color: var(--text-primary) !important;
+}
+.editor-toolbar > button:hover, .editor-toolbar > button.active {
+  background: var(--bg-secondary) !important;
+  border-color: var(--card-border) !important;
+}
+.editor-toolbar i.separator {
+  border-right-color: var(--card-border) !important;
+  border-left-color: var(--card-border) !important;
+}
+.CodeMirror {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md) !important;
+  font-family: 'Outfit', sans-serif !important;
+  height: 100% !important;
+  min-height: 250px;
+}
+.editor-preview {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
