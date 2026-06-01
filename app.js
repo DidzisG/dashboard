@@ -350,9 +350,13 @@ async function handleGoogleSignIn(token, profile) {
   showLoadingState('email-widget', true);
   try {
     const gmailMessages = await fetchGmailMessages(15);
+    console.log('[handleGoogleSignIn] Fetched gmailMessages:', gmailMessages);
     // Replace simulated emails with real ones
     state.emails = gmailMessages;
+    console.log('[handleGoogleSignIn] state.emails updated:', state.emails);
     handleStateChange('emails', state.emails);
+    
+    console.log('[handleGoogleSignIn] Calling renderEmails()...');
     renderEmails();
     
     if (gmailMessages.length > 0) {

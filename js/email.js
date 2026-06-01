@@ -303,15 +303,20 @@ function handleConvertToTask() {
 }
 
 export function renderEmails() {
-  if (!emailListContainer) return;
+  if (!emailListContainer) {
+    console.warn('[renderEmails] emailListContainer not found in DOM!');
+    return;
+  }
   emailListContainer.innerHTML = '';
-
-  let list = [...appState.emails];
+  
+  console.log('[renderEmails] Current appState.emails:', appState.emails);
+  let list = [...(appState.emails || [])];
 
   // Apply unread filters
   if (currentFilter === 'unread') {
     list = list.filter(m => !m.read);
   }
+  console.log(`[renderEmails] After filtering (filter=${currentFilter}), list size:`, list.length);
 
   if (list.length === 0) {
     emailListContainer.innerHTML = `
