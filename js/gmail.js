@@ -17,13 +17,17 @@ export async function fetchGmailMessages(max = 15) {
     if (ids.length === 0) return [];
 
     // 2. Fetch metadata for each (parallel, limit to 12)
+    console.log(`Fetching metadata for ${ids.slice(0, 12).length} messages...`);
     const results = await Promise.allSettled(
       ids.slice(0, 12).map(({ id }) => fetchMessageMeta(id))
     );
+    console.log('Metadata fetch results:', results);
 
-    return results
+    const finalMessages = results
       .filter(r => r.status === 'fulfilled' && r.value)
       .map(r => r.value);
+    console.log('Final parsed Gmail messages:', finalMessages);
+    return finalMessages;
 
   } catch (err) {
     console.error('Gmail fetch error:', err.message);
