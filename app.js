@@ -2,7 +2,7 @@
 
 import { loadState, updateField } from './js/db.js';
 import { initTasks, addTask, toggleTask, setGoogleSyncHooks } from './js/tasks.js';
-import { initCalendar, openAddEventModal } from './js/calendar.js';
+import { initCalendar, openAddEventModal, syncCalendar } from './js/calendar.js';
 import { initEmails, openEmailDetail, playNotificationSound, renderEmails } from './js/email.js';
 import { initCommandPalette } from './js/commandPalette.js';
 import { initNotifications, addNotification } from './js/notifications.js';
@@ -483,6 +483,17 @@ async function handleGoogleSignIn(token, profile) {
     console.error('Google Tasks sync error:', e);
   }
   showLoadingState('tasks-widget', false);
+
+  // --- Fetch Google Calendar ---
+  showLoadingState('calendar-widget', true);
+  try {
+    await syncCalendar();
+    addNotification('Google Calendar Synced', `Events loaded`, 'calendar');
+  } catch (e) {
+    console.error('Calendar sync error:', e);
+    showVisualNotification('Calendar Error', e.message || 'Could not load Calendar.');
+  }
+  showLoadingState('calendar-widget', false);
 
   // --- Bidirectional task sync hooks ---
   setGoogleSyncHooks({

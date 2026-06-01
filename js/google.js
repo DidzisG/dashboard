@@ -5,6 +5,7 @@ const CLIENT_ID = '1050435381289-gr2cqkft1doocfs76f1tdr61ck5pf7u5.apps.googleuse
 const SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/tasks',
+  'https://www.googleapis.com/auth/calendar.events',
   'https://www.googleapis.com/auth/userinfo.profile',
   'https://www.googleapis.com/auth/userinfo.email',
 ].join(' ');

@@ -1,5 +1,8 @@
 // Calendar Module
 
+import { fetchGoogleEvents, createGoogleEvent } from './googleCalendar.js';
+import { isSignedIn } from './google.js';
+
 let appState = null;
 let saveCallback = null;
 
@@ -59,6 +62,20 @@ export function initCalendar(state, onStateChange) {
   renderAgenda();
 }
 
+export async function syncCalendar() {
+  if (!isSignedIn()) return;
+  const gEvents = await fetchGoogleEvents();
+  
+  // Keep local events, replace google ones
+  const localEvents = appState.events.filter(e => e.source !== 'google');
+  
+  appState.events = [...localEvents, ...gEvents];
+  saveCallback('events', appState.events);
+  
+  renderCalendar();
+  renderAgenda();
+}
+
 function updateAgendaLabel() {
   if (agendaDateLabel) {
     const options = { weekday: 'short', month: 'short', day: 'numeric' };
@@ -106,7 +123,7 @@ function closeEventModal() {
   if (eventDialog) eventDialog.close();
 }
 
-function handleSaveEvent() {
+async function handleSaveEvent() {
   const title = eventTitle.value.trim();
   const dateVal = eventDate.value;
   const timeVal = eventTime.value;
@@ -117,24 +134,33 @@ function handleSaveEvent() {
     return;
   }
 
-  const newEvent = {
-    id: 'e_' + Date.now(),
-    title,
-    date: dateVal,
-    time: timeVal,
-    type: typeVal
-  };
-
-  appState.events.push(newEvent);
-  saveCallback('events', appState.events);
-  
+  // Close modal early for better UX
   closeEventModal();
-  renderCalendar();
-  
-  // If event added matches selected day, re-render agenda
-  const newEventDate = new Date(dateVal);
-  if (isSameDay(newEventDate, selectedDate)) {
-    renderAgenda();
+
+  if (isSignedIn()) {
+    // Save to Google Calendar
+    const googleEventId = await createGoogleEvent(title, dateVal, timeVal);
+    if (googleEventId) {
+      await syncCalendar();
+    }
+  } else {
+    // Save Locally
+    const newEvent = {
+      id: 'e_' + Date.now(),
+      title,
+      date: dateVal,
+      time: timeVal,
+      type: typeVal
+    };
+
+    appState.events.push(newEvent);
+    saveCallback('events', appState.events);
+    
+    renderCalendar();
+    const newEventDate = new Date(dateVal);
+    if (isSameDay(newEventDate, selectedDate)) {
+      renderAgenda();
+    }
   }
 }
 
