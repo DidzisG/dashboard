@@ -67,7 +67,8 @@ console.log('Aether Dashboard initialized.');
 
 // Sync data changes across modules
 function handleStateChange(key, value) {
-  state = updateField(key, value);
+  state[key] = value;
+  updateField(key, value);
 }
 
 function handleSyncCommand(type, data) {
