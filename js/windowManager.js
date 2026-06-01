@@ -84,15 +84,21 @@ export function initWindowManager(state, saveCallback) {
     });
   });
 
+  const GRID_SNAP = 20;
+
   window.addEventListener('mousemove', (e) => {
     if (draggedWidget) {
       const gridRect = dashboardGrid.getBoundingClientRect();
-      let newX = e.clientX - offsetX;
-      let newY = e.clientY - offsetY;
+      let rawX = e.clientX - offsetX;
+      let rawY = e.clientY - offsetY;
       
       // Basic bounds checking (don't go off top/left)
-      if (newX < 0) newX = 0;
-      if (newY < 0) newY = 0;
+      if (rawX < 0) rawX = 0;
+      if (rawY < 0) rawY = 0;
+      
+      // Snap to grid
+      let newX = Math.round(rawX / GRID_SNAP) * GRID_SNAP;
+      let newY = Math.round(rawY / GRID_SNAP) * GRID_SNAP;
       
       draggedWidget.style.left = `${newX}px`;
       draggedWidget.style.top = `${newY}px`;
@@ -100,8 +106,12 @@ export function initWindowManager(state, saveCallback) {
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
       
-      let newW = Math.max(300, startW + dx); // minimum width
-      let newH = Math.max(200, startH + dy); // minimum height
+      let rawW = Math.max(300, startW + dx); // minimum width
+      let rawH = Math.max(200, startH + dy); // minimum height
+      
+      // Snap to grid
+      let newW = Math.round(rawW / GRID_SNAP) * GRID_SNAP;
+      let newH = Math.round(rawH / GRID_SNAP) * GRID_SNAP;
       
       resizingWidget.style.width = `${newW}px`;
       resizingWidget.style.height = `${newH}px`;

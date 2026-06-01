@@ -319,7 +319,7 @@ header {
 .dashboard-grid {
   flex-grow: 1;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   height: calc(100vh - var(--header-height));
   background: var(--bg-primary);
 }
