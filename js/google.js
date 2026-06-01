@@ -104,5 +104,11 @@ export async function gFetch(url, options = {}) {
     throw new Error('Google token expired — please reconnect.');
   }
   if (res.status === 204) return null; // DELETE responses
-  return res.json();
+
+  const data = await res.json();
+  if (!res.ok) {
+    const errMsg = data.error?.message || `HTTP error ${res.status}`;
+    throw new Error(errMsg);
+  }
+  return data;
 }

@@ -1,5 +1,7 @@
 // Email Module with Web Audio synthesized sound alerts
 
+import { isSignedIn } from './google.js';
+
 let appState = null;
 let saveCallback = null;
 let onStateSynchronized = null; // Callback when tasks or layout need to sync from here
@@ -167,6 +169,8 @@ export function playNotificationSound() {
 
 // Simulated background email alert generator
 export function triggerSimulatedEmail() {
+  if (isSignedIn()) return; // Disable simulation when Google is connected
+
   const template = SIMULATED_TEMPLATES[Math.floor(Math.random() * SIMULATED_TEMPLATES.length)];
   
   const now = new Date();

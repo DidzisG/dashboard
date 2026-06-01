@@ -327,6 +327,10 @@ function setupGoogleBtn() {
     if (isSignedIn()) {
       signOut();
       updateGoogleBtnUI(null);
+      // Clear Gmail messages on disconnect to preserve privacy
+      state.emails = [];
+      handleStateChange('emails', state.emails);
+      renderEmails();
       showVisualNotification('Google Disconnected', 'Your Google account has been disconnected.');
     } else {
       signIn();
@@ -345,16 +349,19 @@ async function handleGoogleSignIn(token, profile) {
   showLoadingState('email-widget', true);
   try {
     const gmailMessages = await fetchGmailMessages(15);
+    // Replace simulated emails with real ones
+    state.emails = gmailMessages;
+    handleStateChange('emails', state.emails);
+    renderEmails();
+    
     if (gmailMessages.length > 0) {
-      state.emails = state.emails.filter(m => !m.id.startsWith('gmail_'));
-      state.emails = [...gmailMessages, ...state.emails];
-      handleStateChange('emails', state.emails);
-      renderEmails();
       addNotification('Gmail Synced', `${gmailMessages.length} unread message(s) loaded`, 'gmail');
+    } else {
+      addNotification('Gmail Synced', 'Inbox is empty (no unread messages)', 'gmail');
     }
   } catch (e) {
     console.error('Gmail sync error:', e);
-    showVisualNotification('Gmail Error', 'Could not load Gmail. Please try reconnecting.');
+    showVisualNotification('Gmail Error', e.message || 'Could not load Gmail. Please try reconnecting.');
   }
   showLoadingState('email-widget', false);
 
