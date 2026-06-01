@@ -10,6 +10,7 @@ import { initNotes } from './js/notes.js';
 import { initGoogleAuth, signIn, signOut, isSignedIn, getProfile } from './js/google.js';
 import { fetchGmailMessages, openInGmail, markGmailRead } from './js/gmail.js';
 import { initGoogleTasks, fetchGoogleTasks, createGoogleTask, completeGoogleTask, deleteGoogleTask } from './js/googleTasks.js';
+import { initWindowManager } from './js/windowManager.js';
 
 // DOM elements
 const sidebar = document.getElementById('sidebar');
