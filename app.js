@@ -22,6 +22,8 @@ import { initBookmarks } from './js/bookmarks.js';
 import { initFinance } from './js/finance.js';
 import { initAmbient } from './js/ambient.js';
 import { initThemeBuilder, openThemePanel } from './js/themeBuilder.js';
+import { initSpotify } from './js/spotify.js';
+import { initNotion } from './js/notion.js';
 
 // DOM elements
 const sidebar = document.getElementById('sidebar');
@@ -40,8 +42,8 @@ const navTasks     = document.getElementById('nav-tasks');
 const navWeather   = document.getElementById('nav-weather');
 const navNotes     = document.getElementById('nav-notes');
 const navPomodoro  = document.getElementById('nav-pomodoro');
-const navHabits    = document.getElementById('nav-habits');
-const navClock     = document.getElementById('nav-clock');
+const navSpotify   = document.getElementById('nav-spotify');
+const navNotion    = document.getElementById('nav-notion');
 const navBookmarks = document.getElementById('nav-bookmarks');
 const navFinance   = document.getElementById('nav-finance');
 
@@ -59,8 +61,8 @@ const tasksWidget    = document.getElementById('tasks-widget');
 const notesWidget    = document.getElementById('notes-widget');
 const weatherWidget  = document.getElementById('weather-widget');
 const pomodoroWidget = document.getElementById('pomodoro-widget');
-const habitWidget    = document.getElementById('habit-widget');
-const clockWidget    = document.getElementById('clock-widget');
+const spotifyWidget  = document.getElementById('spotify-widget');
+const notionWidget   = document.getElementById('notion-widget');
 const bookmarkWidget = document.getElementById('bookmark-widget');
 const financeWidget  = document.getElementById('finance-widget');
 
@@ -102,6 +104,8 @@ initBookmarks(state, handleStateChange);
 initFinance(state, handleStateChange);
 initAmbient(state, handleStateChange);
 initThemeBuilder(state, handleStateChange);
+initSpotify();
+initNotion();
 initOnboarding();
 
 // Handle quick capture events from the overlay
@@ -223,8 +227,8 @@ function showVisualNotification(title, message) {
 
 // Navigation Tabs Filter (Ergonomics routing)
 function setupNavigation() {
-  const links = [navDashboard, navEmails, navCalendar, navTasks, navWeather, navNotes, navPomodoro, navHabits, navClock, navBookmarks, navFinance];
-  const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget, weatherWidget, pomodoroWidget, habitWidget, clockWidget, bookmarkWidget, financeWidget];
+  const links = [navDashboard, navEmails, navCalendar, navTasks, navWeather, navNotes, navPomodoro, navSpotify, navNotion, navBookmarks, navFinance];
+  const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget, weatherWidget, pomodoroWidget, spotifyWidget, notionWidget, bookmarkWidget, financeWidget];
   const workspace = document.querySelector('.dashboard-grid');
   let focusedWidget = null;
 
@@ -309,14 +313,14 @@ function setupNavigation() {
     focusWidget(pomodoroWidget, navPomodoro);
   });
 
-  navHabits?.addEventListener('click', (e) => {
+  navSpotify?.addEventListener('click', (e) => {
     e.preventDefault();
-    focusWidget(habitWidget, navHabits);
+    focusWidget(spotifyWidget, navSpotify);
   });
 
-  navClock?.addEventListener('click', (e) => {
+  navNotion?.addEventListener('click', (e) => {
     e.preventDefault();
-    focusWidget(clockWidget, navClock);
+    focusWidget(notionWidget, navNotion);
   });
 
   navBookmarks?.addEventListener('click', (e) => {

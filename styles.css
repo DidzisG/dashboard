@@ -3610,3 +3610,359 @@ body.compact-mode .dashboard-grid {
 /* ============================================
    SHORTCUT: T key indicator in header tip
    ============================================ */
+
+/* ============================================
+   SPOTIFY WIDGET
+   ============================================ */
+.spotify-connect,
+.spotify-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 10px;
+  text-align: center;
+}
+
+.spotify-logo svg { filter: drop-shadow(0 0 12px rgba(29,185,84,0.4)); }
+
+.spotify-connect-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.spotify-connect-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.spotify-connect-hint a {
+  color: #1DB954;
+  text-decoration: none;
+}
+
+.spotify-id-input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 8px 12px;
+  outline: none;
+}
+
+.spotify-id-input:focus { border-color: #1DB954; }
+
+.spotify-auth-btn {
+  background: #1DB954;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: #000;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 20px;
+  transition: background 0.15s, transform 0.1s;
+  width: 100%;
+}
+
+.spotify-auth-btn:hover { background: #1ed760; transform: scale(1.02); }
+
+.spotify-disconnect,
+.spotify-disconnect-sm {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--card-border);
+  border-radius: 99px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  transition: color 0.1s, background 0.1s;
+}
+
+.spotify-disconnect:hover,
+.spotify-disconnect-sm:hover { color: var(--accent-rose); background: rgba(244,63,94,0.08); }
+
+/* Now playing */
+.spotify-now-playing {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.spotify-art-wrap {
+  flex-shrink: 0;
+}
+
+.spotify-art {
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease;
+}
+
+.spotify-art.spinning {
+  animation: vinylSpin 8s linear infinite;
+}
+
+@keyframes vinylSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.spotify-art-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+}
+
+.spotify-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.spotify-track-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotify-artists {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.spotify-album {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.spotify-progress-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 4px 0 2px;
+}
+
+.spotify-progress-fill {
+  height: 100%;
+  background: #1DB954;
+  border-radius: 99px;
+  transition: width 1s linear;
+}
+
+.spotify-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.spotify-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spotify-ctrl {
+  background: rgba(255,255,255,0.06);
+  border: none;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s, color 0.15s;
+}
+
+.spotify-ctrl:hover { background: rgba(255,255,255,0.12); color: var(--text-primary); transform: scale(1.1); }
+.spotify-ctrl.primary { background: #1DB954; color: #000; width: 36px; height: 36px; font-size: 0.85rem; }
+.spotify-ctrl.primary:hover { background: #1ed760; }
+
+.spotify-idle {
+  flex-direction: row;
+  gap: 8px;
+  padding: 12px 0;
+  justify-content: flex-start;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   NOTION WIDGET
+   ============================================ */
+.notion-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.notion-logo {
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.notion-connect-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.notion-connect-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.notion-connect-hint a { color: var(--accent-purple); text-decoration: none; }
+
+.notion-input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  outline: none;
+}
+
+.notion-input:focus { border-color: var(--accent-purple); }
+
+.notion-connect-btn { width: 100%; }
+
+.notion-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.notion-search-input {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  outline: none;
+}
+
+.notion-search-input:focus { border-color: var(--accent-purple); }
+
+.notion-icon-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.1s, background 0.1s;
+}
+
+.notion-icon-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.08); }
+
+.notion-page-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notion-page-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: var(--border-radius-sm);
+  text-decoration: none;
+  transition: background 0.12s;
+  cursor: pointer;
+}
+
+.notion-page-row:hover { background: rgba(255,255,255,0.04); }
+
+.notion-page-icon { font-size: 0.9rem; flex-shrink: 0; }
+
+.notion-page-title {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notion-status-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.notion-page-date {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.notion-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 16px 0;
+}
+
+.spin-icon { display: inline-block; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.notion-empty,
+.notion-error {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding: 16px 0;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.notion-error { color: var(--accent-rose); }
