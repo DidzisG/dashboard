@@ -3315,3 +3315,298 @@ body {
   background: #7c3aed;
   transform: scale(1.02);
 }
+
+/* ============================================
+   AMBIENT CANVAS
+   ============================================ */
+#ambient-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* Ensure app content sits above the canvas */
+#sidebar, #main-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   THEME PANEL (slide-in drawer)
+   ============================================ */
+.theme-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 800;
+  width: 320px;
+  max-width: 92vw;
+  overflow-y: auto;
+  padding: 0;
+  border-left: 1px solid var(--card-border);
+  border-radius: 0;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(14, 16, 26, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: -16px 0 40px rgba(0,0,0,0.5);
+}
+
+.theme-panel.open {
+  transform: translateX(0);
+}
+
+.theme-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--card-border);
+  position: sticky;
+  top: 0;
+  background: rgba(14, 16, 26, 0.97);
+  z-index: 1;
+}
+
+.theme-panel-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.theme-panel-close {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.2rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s, color 0.1s;
+}
+
+.theme-panel-close:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-primary);
+}
+
+.theme-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.theme-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-purple);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+}
+
+/* ── Theme Preset Grid ── */
+.theme-preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.theme-preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.theme-preset-btn:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+
+.theme-preset-btn.active {
+  border-color: var(--accent-purple);
+  background: var(--accent-purple-glow);
+}
+
+.theme-preset-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.theme-preset-name {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ── Toggle Switch ── */
+.theme-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-knob {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle-knob::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: left 0.2s, background 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-knob {
+  background: var(--accent-purple-glow);
+  border-color: var(--accent-purple);
+}
+
+.toggle-switch input:checked + .toggle-knob::after {
+  left: 20px;
+  background: var(--accent-purple);
+}
+
+/* ── Ambient Radio Row ── */
+.theme-radio-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.theme-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.theme-radio-label input { accent-color: var(--accent-purple); }
+
+/* ── Widget Color Pickers ── */
+.widget-color-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.widget-color-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.widget-color-picker {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 32px;
+  height: 24px;
+  border: 1px solid var(--card-border);
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  overflow: hidden;
+}
+
+.widget-color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+.widget-color-picker::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+/* ── Widget accent via CSS var ── */
+.widget {
+  --widget-accent: var(--accent-purple);
+  border-color: rgba(255,255,255,0.06);
+  transition: border-color 0.4s ease;
+}
+
+/* ============================================
+   COMPACT MODE
+   ============================================ */
+body.compact-mode .widget-content {
+  padding: 10px 12px;
+}
+
+body.compact-mode .widget-header {
+  padding: 8px 12px;
+  min-height: unset;
+}
+
+body.compact-mode .widget-title {
+  font-size: 0.75rem;
+}
+
+body.compact-mode .task-item,
+body.compact-mode .habit-row,
+body.compact-mode .clock-item,
+body.compact-mode .finance-row,
+body.compact-mode .email-item {
+  padding: 5px 8px;
+  font-size: 0.78rem;
+}
+
+body.compact-mode .pomo-ring-wrap {
+  width: 120px;
+  height: 120px;
+}
+
+body.compact-mode .pomo-time {
+  font-size: 1.7rem;
+}
+
+body.compact-mode .dashboard-grid {
+  gap: 10px;
+  padding: 10px;
+}
+
+/* ============================================
+   SHORTCUT: T key indicator in header tip
+   ============================================ */

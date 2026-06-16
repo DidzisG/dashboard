@@ -20,6 +20,8 @@ import { initHabitTracker } from './js/habitTracker.js';
 import { initWorldClock } from './js/worldClock.js';
 import { initBookmarks } from './js/bookmarks.js';
 import { initFinance } from './js/finance.js';
+import { initAmbient } from './js/ambient.js';
+import { initThemeBuilder, openThemePanel } from './js/themeBuilder.js';
 
 // DOM elements
 const sidebar = document.getElementById('sidebar');
@@ -98,6 +100,8 @@ initHabitTracker(state, handleStateChange);
 initWorldClock(state, handleStateChange);
 initBookmarks(state, handleStateChange);
 initFinance(state, handleStateChange);
+initAmbient(state, handleStateChange);
+initThemeBuilder(state, handleStateChange);
 initOnboarding();
 
 // Handle quick capture events from the overlay
@@ -343,6 +347,10 @@ function setupNavigation() {
     const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || document.activeElement?.isContentEditable;
     if (!inInput && e.key === '?' && shortcutsDialog) {
       shortcutsDialog.showModal();
+    }
+    // T opens theme panel
+    if (!inInput && (e.key === 't' || e.key === 'T')) {
+      openThemePanel();
     }
   });
 }
