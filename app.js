@@ -24,6 +24,9 @@ import { initAmbient } from './js/ambient.js';
 import { initThemeBuilder, openThemePanel } from './js/themeBuilder.js';
 import { initSpotify } from './js/spotify.js';
 import { initNotion } from './js/notion.js';
+import { initFocusMode, toggleFocusMode } from './js/focusMode.js';
+import { initResizeHandles } from './js/widgetResize.js';
+import { initPinnedActions } from './js/pinnedActions.js';
 
 // DOM elements
 const sidebar = document.getElementById('sidebar');
@@ -106,6 +109,10 @@ initAmbient(state, handleStateChange);
 initThemeBuilder(state, handleStateChange);
 initSpotify();
 initNotion();
+initFocusMode();
+initResizeHandles();
+initPinnedActions();
+initDashboardName();
 initOnboarding();
 
 // Handle quick capture events from the overlay
@@ -487,6 +494,47 @@ if (presetSelect) {
     } else if (preset === 'comms') {
       if (tasksWidget) tasksWidget.style.display = 'none';
       if (notesWidget) notesWidget.style.display = 'none';
+    }
+  });
+}
+
+// Custom Dashboard Name (double-click to edit)
+function initDashboardName() {
+  const nameEl = document.getElementById('dashboard-name');
+  if (!nameEl) return;
+  const saved = localStorage.getItem('dashboard_name');
+  if (saved) {
+    nameEl.textContent = saved;
+    document.title = `${saved} Dashboard`;
+  }
+
+  nameEl.addEventListener('dblclick', () => {
+    nameEl.contentEditable = 'true';
+    nameEl.classList.add('editing');
+    nameEl.focus();
+    // Select all text
+    const range = document.createRange();
+    range.selectNodeContents(nameEl);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  });
+
+  const saveName = () => {
+    nameEl.contentEditable = 'false';
+    nameEl.classList.remove('editing');
+    const name = nameEl.textContent.trim() || 'Aether';
+    nameEl.textContent = name;
+    localStorage.setItem('dashboard_name', name);
+    document.title = `${name} Dashboard`;
+  };
+
+  nameEl.addEventListener('blur', saveName);
+  nameEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); saveName(); }
+    if (e.key === 'Escape') {
+      nameEl.textContent = localStorage.getItem('dashboard_name') || 'Aether';
+      nameEl.contentEditable = 'false';
+      nameEl.classList.remove('editing');
     }
   });
 }

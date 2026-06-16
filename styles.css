@@ -4065,3 +4065,430 @@ body.compact-mode .dashboard-grid {
   max-height: 280px;
   overflow-y: auto;
 }
+
+/* ============================================
+   CUSTOM DASHBOARD NAME
+   ============================================ */
+.dashboard-name {
+  cursor: default;
+  border-radius: 4px;
+  padding: 1px 4px;
+  transition: background 0.15s, outline 0.15s;
+  outline: 2px solid transparent;
+}
+
+.dashboard-name:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.dashboard-name.editing {
+  cursor: text;
+  background: rgba(139,92,246,0.08);
+  outline: 2px solid var(--accent-purple);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================
+   PINNED QUICK ACTIONS
+   ============================================ */
+.pinned-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pinned-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, transform 0.1s;
+  position: relative;
+}
+
+.pinned-action-btn:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+
+.pinned-action-btn:active { transform: scale(0.94); }
+
+.pinned-action-emoji {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.pinned-config-btn {
+  border-style: dashed;
+  opacity: 0.6;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.pinned-config-btn:hover { opacity: 1; }
+
+/* Config popup */
+.pinned-config-panel {
+  position: fixed;
+  z-index: 900;
+  width: 280px;
+  padding: 12px;
+  background: rgba(14,16,26,0.97);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-md);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+
+.pinned-config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.pinned-config-header small { font-weight: 400; color: var(--text-muted); margin-left: 4px; }
+
+.pinned-config-header button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.pinned-config-header button:hover { color: var(--text-primary); }
+
+.pinned-config-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.pinned-action-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background 0.1s;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.pinned-action-choice:hover { background: rgba(255,255,255,0.04); }
+.pinned-action-choice.checked { color: var(--text-primary); background: rgba(139,92,246,0.07); }
+
+.pinned-action-choice input { display: none; }
+.pinned-choice-emoji { font-size: 1rem; }
+.pinned-choice-label { flex: 1; }
+.pinned-choice-shortcut {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+/* ============================================
+   FOCUS / DND MODE
+   ============================================ */
+.focus-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  transition: all 0.15s;
+}
+
+.focus-mode-btn:hover {
+  background: rgba(139,92,246,0.1);
+  border-color: var(--accent-purple);
+  color: var(--accent-purple);
+}
+
+.focus-mode-btn.active {
+  background: rgba(244,63,94,0.12);
+  border-color: var(--accent-rose);
+  color: var(--accent-rose);
+}
+
+.dnd-header-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-rose);
+  background: rgba(244,63,94,0.12);
+  border: 1px solid rgba(244,63,94,0.25);
+  border-radius: 999px;
+  padding: 3px 10px;
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+/* DND overlay */
+#dnd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(5,5,10,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInOverlay 0.3s ease;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+body.dnd-mode .dashboard-grid {
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.dnd-card {
+  width: 380px;
+  max-width: 92vw;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: cardSlideUp 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+
+@keyframes cardSlideUp {
+  from { transform: translateY(30px) scale(0.95); opacity: 0; }
+  to   { transform: translateY(0) scale(1);     opacity: 1; }
+}
+
+.dnd-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-rose);
+  background: rgba(244,63,94,0.1);
+  border: 1px solid rgba(244,63,94,0.2);
+  border-radius: 999px;
+  padding: 4px 14px;
+}
+
+.dnd-task-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.dnd-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.dnd-task-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  min-width: 200px;
+  padding: 6px 12px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid transparent;
+  outline: none;
+  cursor: text;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dnd-task-name:focus {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--accent-purple);
+}
+
+/* Timer ring */
+.dnd-timer-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0;
+}
+
+.dnd-ring { overflow: visible; }
+
+.dnd-ring-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 8;
+}
+
+.dnd-ring-fill {
+  fill: none;
+  stroke: var(--accent-purple);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+  filter: drop-shadow(0 0 6px var(--accent-purple));
+}
+
+.dnd-time-display {
+  position: absolute;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+
+.dnd-time-label {
+  position: absolute;
+  bottom: 14px;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.dnd-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.dnd-ctrl-btn {
+  padding: 9px 22px;
+  border-radius: var(--border-radius-sm);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.15s;
+  background: var(--accent-purple);
+  color: #fff;
+}
+
+.dnd-ctrl-btn:hover { filter: brightness(1.15); transform: scale(1.03); }
+.dnd-ctrl-btn.secondary {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-secondary);
+  border: 1px solid var(--card-border);
+}
+.dnd-ctrl-btn.secondary:hover { background: rgba(255,255,255,0.1); }
+
+.dnd-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--card-border);
+}
+
+.dnd-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.dnd-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.dnd-stat span {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dnd-stat small {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dnd-exit-btn {
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 7px 18px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.dnd-exit-btn:hover {
+  color: var(--accent-rose);
+  border-color: var(--accent-rose);
+}
+
+/* ============================================
+   WIDGET RESIZE HANDLES
+   ============================================ */
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ns-resize;
+  color: var(--text-muted);
+  opacity: 0;
+  border-radius: 0 0 var(--border-radius-md) 0;
+  transition: opacity 0.15s, color 0.15s;
+  z-index: 10;
+}
+
+.widget:hover .resize-handle {
+  opacity: 1;
+}
+
+.resize-handle:hover {
+  color: var(--accent-purple);
+  opacity: 1;
+}
+
+/* Subtle height indicator while resizing */
+.widget[style*="height"] {
+  border-bottom: 2px solid rgba(139,92,246,0.15);
+}
