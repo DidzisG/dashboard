@@ -409,10 +409,10 @@ header {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 20px;
+  padding: 16px;
   background: var(--card-bg);
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  min-height: 320px;
+  min-height: 0;
   transition: opacity 0.35s ease,
               transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
               box-shadow 0.3s ease;
@@ -428,8 +428,8 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   cursor: grab;
 }
@@ -503,7 +503,7 @@ header {
 }
 
 .widget-content {
-  flex-grow: 1;
+  flex-grow: 0;
   overflow-y: auto;
   position: relative;
 }
@@ -703,13 +703,34 @@ header {
 .email-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+}
+
+/* "N more emails" pill at the bottom of the collapsed list */
+.email-show-all-btn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 7px;
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.email-show-all-btn:hover {
+  background: rgba(139,92,246,0.08);
+  border-color: var(--accent-purple);
+  color: var(--accent-purple);
 }
 
 .email-item {
   display: flex;
   justify-content: space-between;
-  padding: 12px 14px;
+  padding: 9px 12px;
   border-radius: var(--border-radius-sm);
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.03);
@@ -725,14 +746,14 @@ header {
 
 .email-item.unread {
   border-left: 3px solid var(--accent-cyan);
-  padding-left: 11px;
+  padding-left: 9px;
   background: rgba(6, 182, 212, 0.03);
 }
 
 .email-item-left {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   overflow: hidden;
   max-width: 75%;
 }
@@ -799,6 +820,13 @@ header {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Hidden in collapsed tile — only shown in focus mode */
+  display: none;
+}
+
+/* Show body peek when widget is expanded/focused */
+.widget-focused .email-body-peek {
+  display: block;
 }
 
 .email-item-right {
@@ -905,7 +933,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: var(--border-radius-sm);
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.03);
@@ -1947,7 +1975,8 @@ body {
 
   .dashboard-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, minmax(320px, auto));
+    grid-template-rows: none;
+    grid-auto-rows: min-content;
     overflow-y: auto;
     height: auto;
     padding: 16px;
@@ -1957,7 +1986,7 @@ body {
   #email-widget, #calendar-widget, #tasks-widget, #notes-widget {
     grid-column: 1 / 2;
     grid-row: auto;
-    min-height: 320px;
+    min-height: 0;
   }
 
   #main-content {
@@ -2021,7 +2050,8 @@ body {
   .widget {
     position: relative !important;
     width: 100% !important;
-    height: 400px !important;
+    height: auto !important;
+    min-height: 0 !important;
     left: 0 !important;
     top: auto !important;
     flex-shrink: 0;
@@ -3966,3 +3996,72 @@ body.compact-mode .dashboard-grid {
 }
 
 .notion-error { color: var(--accent-rose); }
+
+/* ============================================
+   WIDGET CONTENT SCROLL CAPS
+   Keep every tile compact — scroll internally
+   ============================================ */
+
+/* Email list: max 5 emails visible before scrolling */
+.email-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+/* Task list */
+.task-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Calendar events */
+#calendar-events-list,
+.calendar-events-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Notes: sensible cap on the edit area */
+#notes-widget .widget-content {
+  max-height: 380px;
+}
+
+/* Finance rows */
+.finance-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Bookmarks grid */
+.bookmarks-grid {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/* Notion page list */
+.notion-page-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Weather widget — keep forecast concise */
+#weather-widget .widget-content {
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+/* Pomodoro — fixed small card */
+#pomodoro-widget .widget-content {
+  max-height: 300px;
+}
+
+/* Spotify player */
+#spotify-widget .widget-content {
+  max-height: 200px;
+}
+
+/* Smart digest card */
+.smart-digest-card {
+  max-height: 280px;
+  overflow-y: auto;
+}

@@ -514,7 +514,14 @@ export function renderEmails() {
     return;
   }
 
-  list.forEach(email => {
+  // Show only the 5 most recent unless widget is in focus mode
+  const emailWidget = document.getElementById('email-widget');
+  const isFocused = emailWidget?.classList.contains('widget-focused');
+  const MAX_COLLAPSED = 5;
+  const total = list.length;
+  const displayList = isFocused ? list : list.slice(0, MAX_COLLAPSED);
+
+  displayList.forEach(email => {
     const item = document.createElement('div');
     item.className = `email-item ${email.read ? '' : 'unread'}`;
     item.dataset.id = email.id;
@@ -578,6 +585,19 @@ export function renderEmails() {
 
     emailListContainer.appendChild(item);
   });
+
+  // "Show all" pill when collapsed and there are more
+  if (!isFocused && total > MAX_COLLAPSED) {
+    const pill = document.createElement('button');
+    pill.className = 'email-show-all-btn';
+    pill.textContent = `+ ${total - MAX_COLLAPSED} more emails`;
+    pill.addEventListener('click', () => {
+      // Trigger focus mode on the email widget so all emails appear
+      const navEmails = document.getElementById('nav-emails');
+      navEmails?.click();
+    });
+    emailListContainer.appendChild(pill);
+  }
 }
 
 function escapeHtml(text) {
