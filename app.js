@@ -16,6 +16,10 @@ import { initWeather } from './js/weather.js';
 import { initPomodoro } from './js/pomodoro.js';
 import { initQuickCapture } from './js/quickCapture.js';
 import { initSmartNotifications } from './js/smartNotifications.js';
+import { initHabitTracker } from './js/habitTracker.js';
+import { initWorldClock } from './js/worldClock.js';
+import { initBookmarks } from './js/bookmarks.js';
+import { initFinance } from './js/finance.js';
 
 // DOM elements
 const sidebar = document.getElementById('sidebar');
@@ -34,6 +38,10 @@ const navTasks     = document.getElementById('nav-tasks');
 const navWeather   = document.getElementById('nav-weather');
 const navNotes     = document.getElementById('nav-notes');
 const navPomodoro  = document.getElementById('nav-pomodoro');
+const navHabits    = document.getElementById('nav-habits');
+const navClock     = document.getElementById('nav-clock');
+const navBookmarks = document.getElementById('nav-bookmarks');
+const navFinance   = document.getElementById('nav-finance');
 
 // Mobile tabs
 const mobDashboard = document.getElementById('mob-tab-dashboard');
@@ -49,6 +57,10 @@ const tasksWidget    = document.getElementById('tasks-widget');
 const notesWidget    = document.getElementById('notes-widget');
 const weatherWidget  = document.getElementById('weather-widget');
 const pomodoroWidget = document.getElementById('pomodoro-widget');
+const habitWidget    = document.getElementById('habit-widget');
+const clockWidget    = document.getElementById('clock-widget');
+const bookmarkWidget = document.getElementById('bookmark-widget');
+const financeWidget  = document.getElementById('finance-widget');
 
 let state = null;
 let saveDebounceTimer = null;
@@ -82,6 +94,10 @@ initWeather();
 initPomodoro();
 initQuickCapture();
 initSmartNotifications(state);
+initHabitTracker(state, handleStateChange);
+initWorldClock(state, handleStateChange);
+initBookmarks(state, handleStateChange);
+initFinance(state, handleStateChange);
 initOnboarding();
 
 // Handle quick capture events from the overlay
@@ -203,8 +219,8 @@ function showVisualNotification(title, message) {
 
 // Navigation Tabs Filter (Ergonomics routing)
 function setupNavigation() {
-  const links = [navDashboard, navEmails, navCalendar, navTasks, navWeather, navNotes, navPomodoro];
-  const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget, weatherWidget, pomodoroWidget];
+  const links = [navDashboard, navEmails, navCalendar, navTasks, navWeather, navNotes, navPomodoro, navHabits, navClock, navBookmarks, navFinance];
+  const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget, weatherWidget, pomodoroWidget, habitWidget, clockWidget, bookmarkWidget, financeWidget];
   const workspace = document.querySelector('.dashboard-grid');
   let focusedWidget = null;
 
@@ -287,6 +303,26 @@ function setupNavigation() {
   navPomodoro?.addEventListener('click', (e) => {
     e.preventDefault();
     focusWidget(pomodoroWidget, navPomodoro);
+  });
+
+  navHabits?.addEventListener('click', (e) => {
+    e.preventDefault();
+    focusWidget(habitWidget, navHabits);
+  });
+
+  navClock?.addEventListener('click', (e) => {
+    e.preventDefault();
+    focusWidget(clockWidget, navClock);
+  });
+
+  navBookmarks?.addEventListener('click', (e) => {
+    e.preventDefault();
+    focusWidget(bookmarkWidget, navBookmarks);
+  });
+
+  navFinance?.addEventListener('click', (e) => {
+    e.preventDefault();
+    focusWidget(financeWidget, navFinance);
   });
 
   // Wire shortcuts button

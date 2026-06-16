@@ -2899,3 +2899,419 @@ body {
   color: var(--text-muted);
   text-align: right;
 }
+
+/* ============================================
+   HABIT TRACKER
+   ============================================ */
+.habit-add-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.habit-emoji-input {
+  width: 40px;
+  text-align: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-size: 1rem;
+  padding: 6px 4px;
+  font-family: inherit;
+  outline: none;
+}
+
+.habit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.habit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--border-radius-sm);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--card-border);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.habit-row.habit-done {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.habit-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--card-border);
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+  color: white;
+}
+
+.habit-check.checked {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.habit-check:hover {
+  border-color: var(--accent-green);
+}
+
+.habit-emoji {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.habit-name {
+  flex: 1;
+  font-size: 0.83rem;
+  color: var(--text-primary);
+}
+
+.habit-row.habit-done .habit-name {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.habit-streak {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.78rem;
+}
+
+.streak-count {
+  font-weight: 700;
+  color: var(--accent-amber);
+}
+
+.habit-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.1s, color 0.1s;
+}
+
+.habit-row:hover .habit-delete { opacity: 1; }
+.habit-delete:hover { color: var(--accent-rose); }
+
+.heatmap-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(28, 1fr);
+  gap: 3px;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  cursor: default;
+  transition: transform 0.1s;
+}
+
+.heatmap-cell:hover { transform: scale(1.4); }
+
+.heat-0 { background: rgba(255,255,255,0.04); }
+.heat-1 { background: rgba(16, 185, 129, 0.2); }
+.heat-2 { background: rgba(16, 185, 129, 0.4); }
+.heat-3 { background: rgba(16, 185, 129, 0.65); }
+.heat-4 { background: rgba(16, 185, 129, 0.9); }
+
+/* ============================================
+   WORLD CLOCK
+   ============================================ */
+.clock-add-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.world-clock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clock-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--border-radius-sm);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--card-border);
+  transition: background 0.12s;
+}
+
+.clock-item:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.clock-sun-moon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+}
+
+.clock-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.clock-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.clock-date-small {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.clock-time {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.clock-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.1s, color 0.1s;
+}
+
+.clock-item:hover .clock-remove-btn { opacity: 1; }
+.clock-remove-btn:hover { color: var(--accent-rose); }
+
+/* ============================================
+   BOOKMARKS
+   ============================================ */
+.bookmark-add-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.bookmark-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+.bookmark-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px 10px;
+  border-radius: var(--border-radius-sm);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--card-border);
+  text-decoration: none;
+  color: var(--text-secondary);
+  position: relative;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  cursor: pointer;
+}
+
+.bookmark-card:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
+  color: var(--text-primary);
+}
+
+.bookmark-favicon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bookmark-initial {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: white;
+}
+
+.bookmark-title {
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-align: center;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.bookmark-delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0,0,0,0.4);
+  border: none;
+  color: white;
+  font-size: 0.7rem;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.bookmark-card:hover .bookmark-delete { opacity: 1; }
+
+/* ============================================
+   FINANCE SNAPSHOT
+   ============================================ */
+.finance-add-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.finance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.finance-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--border-radius-sm);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--card-border);
+  transition: background 0.12s;
+}
+
+.finance-row:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.finance-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.finance-symbol {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.finance-name {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.finance-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.finance-price {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.finance-change {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.finance-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.1s, color 0.1s;
+  flex-shrink: 0;
+}
+
+.finance-row:hover .finance-remove { opacity: 1; }
+.finance-remove:hover { color: var(--accent-rose); }
+
+.finance-error { opacity: 0.5; }
+
+/* btn-primary utility (used by widgets) */
+.btn-primary {
+  background: var(--accent-purple);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  background: #7c3aed;
+  transform: scale(1.02);
+}
