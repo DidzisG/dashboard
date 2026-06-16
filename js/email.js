@@ -1,6 +1,7 @@
 // Email Module with Web Audio synthesized sound alerts
 
-import { isSignedIn } from './google.js';
+import { isSignedIn, getProfile } from './google.js';
+import { openInGmail, sendGmailReply } from './gmail.js';
 
 let appState = null;
 let saveCallback = null;
@@ -13,7 +14,20 @@ const emailModalFrom = document.getElementById('email-modal-from');
 const emailModalTime = document.getElementById('email-modal-time');
 const emailModalBody = document.getElementById('email-modal-body');
 const emailModalTaskBtn = document.getElementById('email-modal-create-task');
-const emailModalDoneBtn = document.getElementById('email-modal-done');
+
+// Compose panel elements
+const viewPanel = document.getElementById('email-view-panel');
+const composePanel = document.getElementById('email-compose-panel');
+const composeTo = document.getElementById('compose-to');
+const composeCc = document.getElementById('compose-cc');
+const composeSubject = document.getElementById('compose-subject');
+const composeBody = document.getElementById('compose-body');
+const composeQuoted = document.getElementById('compose-quoted');
+const composeSendStatus = document.getElementById('compose-send-status');
+const composeAttachRow = document.getElementById('compose-attachments-row');
+const composeAttachList = document.getElementById('compose-attachment-list');
+
+let attachedFiles = [];
 
 // Filter tabs
 const filterAllBtn = document.getElementById('email-filter-all');
@@ -84,8 +98,55 @@ export function initEmails(state, onStateChange, onStateSync) {
   // Bind Dialog events
   if (emailDialog) {
     document.getElementById('email-modal-close').addEventListener('click', closeEmailDialog);
-    emailModalDoneBtn.addEventListener('click', closeEmailDialog);
+    document.getElementById('email-compose-close').addEventListener('click', closeEmailDialog);
     emailModalTaskBtn.addEventListener('click', handleConvertToTask);
+    
+    // Reply button — switch to compose panel
+    document.getElementById('email-modal-reply-btn').addEventListener('click', openComposePanel);
+    
+    // Open in Gmail
+    document.getElementById('email-modal-open-gmail').addEventListener('click', () => {
+      const email = appState.emails.find(m => m.id === activeEmailId);
+      if (email?.gmailThread) openInGmail(email.gmailThread);
+      else if (email?.senderEmail) window.open(`https://mail.google.com/`, '_blank');
+    });
+
+    // Compose toolbar: execCommand formatting
+    document.getElementById('compose-toolbar').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-cmd]');
+      if (!btn) return;
+      document.execCommand(btn.dataset.cmd, false, null);
+      composeBody.focus();
+    });
+
+    // Font size dropdown
+    document.getElementById('compose-fontsize').addEventListener('change', (e) => {
+      document.execCommand('fontSize', false, e.target.value);
+      composeBody.focus();
+    });
+
+    // Insert link
+    document.getElementById('compose-link-btn').addEventListener('click', () => {
+      const url = prompt('Enter URL:', 'https://');
+      if (url) document.execCommand('createLink', false, url);
+      composeBody.focus();
+    });
+
+    // Attachments file picker
+    document.getElementById('compose-file-input').addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      attachedFiles.push(...files);
+      renderAttachmentChips();
+    });
+
+    // Send button
+    document.getElementById('compose-send').addEventListener('click', handleSendReply);
+
+    // Discard
+    document.getElementById('compose-discard').addEventListener('click', () => {
+      if (composeBody.innerHTML.trim() && !confirm('Discard this reply?')) return;
+      closeEmailDialog();
+    });
   }
 
   // Set periodic simulator timer (simulates random incoming email alerts every 120 seconds)
@@ -261,7 +322,12 @@ export function openEmailDetail(id) {
   emailModalSubject.innerText = email.subject;
   emailModalFrom.innerText = `${email.sender} <${email.senderEmail}>`;
   emailModalTime.innerText = `${email.date} at ${email.time}`;
-  emailModalBody.innerText = email.body;
+  
+  // If the body looks like a Gmail snippet (has [Click to open in Gmail]) render as text; else try HTML
+  const bodyContent = email.body || '';
+  emailModalBody.innerHTML = bodyContent.includes('[Click to open') 
+    ? `<span style="white-space:pre-wrap">${escapeHtml(bodyContent)}</span>`
+    : bodyContent;
 
   // Mark as read
   if (!email.read) {
@@ -271,14 +337,47 @@ export function openEmailDetail(id) {
     updateUnreadCount();
   }
 
+  // Show view panel, hide compose
+  viewPanel.style.display = '';
+  composePanel.style.display = 'none';
+
   if (emailDialog) {
     emailDialog.showModal();
   }
 }
 
+function openComposePanel() {
+  const email = appState.emails.find(m => m.id === activeEmailId);
+  if (!email) return;
+
+  // Pre-fill fields
+  composeTo.value = email.senderEmail || '';
+  composeCc.value = '';
+  composeSubject.value = email.subject.startsWith('Re:') ? email.subject : `Re: ${email.subject}`;
+  composeBody.innerHTML = '';
+  attachedFiles = [];
+  renderAttachmentChips();
+
+  // Quote original
+  if (composeQuoted) {
+    const dateStr = `${email.date} at ${email.time}`;
+    composeQuoted.style.display = '';
+    composeQuoted.innerHTML = `
+      <div style="color:var(--text-muted);font-size:0.78rem;margin-bottom:6px;">On ${escapeHtml(dateStr)}, ${escapeHtml(email.sender)} wrote:</div>
+      <div style="white-space:pre-wrap;font-size:0.82rem;opacity:0.7;">${escapeHtml((email.body || '').substring(0, 600))}${email.body?.length > 600 ? '...' : ''}</div>
+    `;
+  }
+
+  composeSendStatus.innerText = '';
+  viewPanel.style.display = 'none';
+  composePanel.style.display = '';
+  composeBody.focus();
+}
+
 function closeEmailDialog() {
   if (emailDialog) emailDialog.close();
   activeEmailId = null;
+  attachedFiles = [];
 }
 
 function handleConvertToTask() {
@@ -286,20 +385,80 @@ function handleConvertToTask() {
   const email = appState.emails.find(m => m.id === activeEmailId);
   if (!email) return;
 
-  // Map email properties to a new task
   const taskText = `Follow up: ${email.subject}`;
   const prio = email.category === 'alert' ? 'high' : email.category === 'support' ? 'medium' : 'low';
-  
-  // Call synchronizer to insert task
-  if (onStateSynchronized) {
-    onStateSynchronized('task', { text: taskText, priority: prio });
-  }
+  if (onStateSynchronized) onStateSynchronized('task', { text: taskText, priority: prio });
 
-  // Change email categories or label so user knows it's converted
   email.body += `\n\n[Converted to Task on ${new Date().toLocaleDateString()}]`;
   saveCallback('emails', appState.emails);
-
   closeEmailDialog();
+}
+
+function renderAttachmentChips() {
+  if (!composeAttachList) return;
+  composeAttachList.innerHTML = '';
+  if (attachedFiles.length === 0) {
+    composeAttachRow.style.display = 'none';
+    return;
+  }
+  composeAttachRow.style.display = '';
+  attachedFiles.forEach((file, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'attachment-chip';
+    chip.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+      ${escapeHtml(file.name)}
+      <button data-idx="${i}" style="background:none;border:none;cursor:pointer;color:inherit;padding:0;margin-left:2px;line-height:1;">×</button>
+    `;
+    chip.querySelector('button').addEventListener('click', () => {
+      attachedFiles.splice(i, 1);
+      renderAttachmentChips();
+    });
+    composeAttachList.appendChild(chip);
+  });
+}
+
+async function handleSendReply() {
+  const email = appState.emails.find(m => m.id === activeEmailId);
+  const to = composeTo.value.trim();
+  const subject = composeSubject.value.trim();
+  const htmlBody = composeBody.innerHTML.trim();
+
+  if (!to) { composeTo.focus(); return; }
+  if (!htmlBody || htmlBody === '<br>') {
+    composeSendStatus.innerText = 'Please write a message.';
+    return;
+  }
+
+  const sendBtn = document.getElementById('compose-send');
+  sendBtn.disabled = true;
+  composeSendStatus.innerText = 'Sending...';
+
+  if (!isSignedIn()) {
+    // Simulate send for non-Google users
+    await new Promise(r => setTimeout(r, 800));
+    composeSendStatus.innerText = 'Connect Google to send real emails.';
+    sendBtn.disabled = false;
+    return;
+  }
+
+  const success = await sendGmailReply({
+    to,
+    subject,
+    htmlBody,
+    threadId: email?.gmailThread || null,
+    inReplyToMessageId: email?.gmailId || null,
+  });
+
+  if (success) {
+    composeSendStatus.innerText = 'Sent ✓';
+    composeSendStatus.style.color = 'var(--accent-green)';
+    setTimeout(() => closeEmailDialog(), 1200);
+  } else {
+    composeSendStatus.innerText = 'Failed to send — check permissions.';
+    composeSendStatus.style.color = 'var(--accent-rose)';
+    sendBtn.disabled = false;
+  }
 }
 
 export function renderEmails() {

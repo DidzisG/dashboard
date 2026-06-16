@@ -99,3 +99,74 @@ export async function markGmailRead(gmailId) {
     console.warn('Could not mark Gmail message as read:', e.message);
   }
 }
+
+// Fetch the full HTML/text body of a Gmail message
+export async function fetchMessageBody(gmailId) {
+  try {
+    const data = await gFetch(`${GMAIL}/messages/${gmailId}?format=full`);
+    return extractBody(data.payload);
+  } catch (e) {
+    console.warn('Could not fetch message body:', e);
+    return null;
+  }
+}
+
+function extractBody(payload) {
+  if (!payload) return '';
+  // Try multipart first
+  if (payload.parts) {
+    // Prefer HTML part
+    const htmlPart = payload.parts.find(p => p.mimeType === 'text/html');
+    if (htmlPart?.body?.data) return atob(htmlPart.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+    const textPart = payload.parts.find(p => p.mimeType === 'text/plain');
+    if (textPart?.body?.data) return atob(textPart.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+    // Recurse into nested parts
+    for (const part of payload.parts) {
+      const body = extractBody(part);
+      if (body) return body;
+    }
+  }
+  if (payload.body?.data) {
+    return atob(payload.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+  }
+  return '';
+}
+
+// Send a reply to a Gmail thread
+export async function sendGmailReply({ to, subject, htmlBody, threadId, inReplyToMessageId, fromEmail }) {
+  try {
+    const boundary = `boundary_${Date.now()}`;
+    const replySubject = subject.startsWith('Re:') ? subject : `Re: ${subject}`;
+
+    // Build MIME message
+    const mimeLines = [
+      `To: ${to}`,
+      `Subject: ${replySubject}`,
+      `Content-Type: text/html; charset=UTF-8`,
+      `MIME-Version: 1.0`,
+    ];
+    if (inReplyToMessageId) {
+      mimeLines.push(`In-Reply-To: ${inReplyToMessageId}`);
+      mimeLines.push(`References: ${inReplyToMessageId}`);
+    }
+    mimeLines.push(''); // blank line before body
+    mimeLines.push(htmlBody);
+
+    const rawMessage = mimeLines.join('\r\n');
+    // Base64url encode
+    const encoded = btoa(unescape(encodeURIComponent(rawMessage)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+    const body = { raw: encoded };
+    if (threadId) body.threadId = threadId;
+
+    await gFetch(`${GMAIL}/messages/send`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    return true;
+  } catch (e) {
+    console.error('sendGmailReply error:', e);
+    return false;
+  }
+}

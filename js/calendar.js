@@ -24,6 +24,92 @@ const eventType = document.getElementById('event-type');
 let currentDate = new Date();
 let selectedDate = new Date(); // Defaults to today
 
+// Hover popover singleton
+let popover = null;
+let popoverHideTimer = null;
+
+function getOrCreatePopover() {
+  if (!popover) {
+    popover = document.createElement('div');
+    popover.className = 'calendar-day-popover';
+    document.body.appendChild(popover);
+  }
+  return popover;
+}
+
+function showDayPopover(dayCell, cellDate, events) {
+  clearTimeout(popoverHideTimer);
+  const pop = getOrCreatePopover();
+
+  const dayNum = cellDate.getDate();
+  const monthName = MONTH_NAMES[cellDate.getMonth()];
+  const weekday = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][cellDate.getDay()];
+
+  const MAX_SHOWN = 5;
+  const shown = events.slice(0, MAX_SHOWN);
+  const extra = events.length - MAX_SHOWN;
+
+  pop.innerHTML = `
+    <div class="calendar-day-popover-header">
+      <span class="calendar-day-popover-date-num">${dayNum}</span>
+      <span class="calendar-day-popover-date-label">${weekday}, ${monthName}</span>
+    </div>
+    <div class="calendar-day-popover-events">
+      ${shown.map(e => {
+        const dotClass = e.type === 'meeting' ? 'meeting' : e.type === 'deadline' ? 'deadline' : '';
+        const timeStr = e.time || '';
+        const googleIcon = e.source === 'google'
+          ? `<svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="opacity:0.5;flex-shrink:0;"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>` : '';
+        return `<div class="calendar-day-popover-event">
+          <span class="calendar-day-popover-event-dot ${dotClass}"></span>
+          ${googleIcon}
+          <span class="calendar-day-popover-event-title">${escapeHtml(e.title)}</span>
+          ${timeStr ? `<span class="calendar-day-popover-event-time">${timeStr}</span>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+    ${extra > 0 ? `<div class="calendar-day-popover-more">+${extra} more</div>` : ''}
+  `;
+
+  // Position the popover
+  const rect = dayCell.getBoundingClientRect();
+  const MARGIN = 8;
+  pop.style.visibility = 'hidden';
+  pop.style.display = 'block';
+  pop.classList.remove('visible');
+
+  // Measure after brief layout pass
+  requestAnimationFrame(() => {
+    const pw = pop.offsetWidth;
+    const ph = pop.offsetHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Prefer below, fallback above
+    let top = rect.bottom + MARGIN;
+    if (top + ph > vh - MARGIN) {
+      top = rect.top - ph - MARGIN;
+    }
+
+    // Prefer centered on the cell, clamp to viewport
+    let left = rect.left + rect.width / 2 - pw / 2;
+    left = Math.max(MARGIN, Math.min(left, vw - pw - MARGIN));
+
+    pop.style.top = top + 'px';
+    pop.style.left = left + 'px';
+    pop.style.visibility = 'visible';
+    pop.classList.add('visible');
+  });
+}
+
+function hideDayPopover() {
+  if (!popover) return;
+  popover.classList.remove('visible');
+  popoverHideTimer = setTimeout(() => {
+    if (popover) popover.style.display = 'none';
+  }, 150);
+}
+
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
@@ -261,6 +347,12 @@ export function renderCalendar() {
         dotsContainer.appendChild(dot);
       });
       dayCell.appendChild(dotsContainer);
+    }
+
+    // Hover popover (only for days with events)
+    if (dayEvents.length > 0) {
+      dayCell.addEventListener('mouseenter', () => showDayPopover(dayCell, cellDate, dayEvents));
+      dayCell.addEventListener('mouseleave', hideDayPopover);
     }
 
     // Day Click Listener

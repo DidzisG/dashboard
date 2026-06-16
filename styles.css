@@ -1066,6 +1066,114 @@ header {
   color: var(--text-muted);
 }
 
+/* Calendar Day Hover Popover */
+.calendar-day-popover {
+  position: fixed;
+  z-index: 9999;
+  min-width: 200px;
+  max-width: 260px;
+  background: rgba(18, 18, 28, 0.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.94) translateY(4px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.calendar-day-popover.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.calendar-day-popover-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.calendar-day-popover-date-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.calendar-day-popover-date-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.calendar-day-popover-events {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.calendar-day-popover-event {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 7px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.calendar-day-popover-event-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--accent-purple);
+}
+
+.calendar-day-popover-event-dot.meeting {
+  background: var(--accent-cyan);
+}
+
+.calendar-day-popover-event-dot.deadline {
+  background: var(--accent-rose);
+}
+
+.calendar-day-popover-event-title {
+  flex: 1;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-day-popover-event-time {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-day-popover-more {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 4px;
+}
+
 /* 4. Notes Widget Styling */
 .notes-container {
   display: flex;
@@ -1999,3 +2107,147 @@ body {
   color: var(--text-primary) !important;
 }
 
+/* ----------------------------------
+   Email Compose / Reply Styles
+   ---------------------------------- */
+.email-dialog-wide {
+  max-width: 700px;
+  width: 92vw;
+}
+
+.compose-field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 6px 0;
+  margin-bottom: 2px;
+}
+
+.compose-label {
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  width: 48px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.compose-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 3px 0;
+}
+
+.compose-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.compose-tool {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 5px 8px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+}
+
+.compose-tool:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+
+.compose-tool-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--card-border);
+  margin: 0 3px;
+}
+
+.compose-tool-select {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: 5px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.75rem;
+  padding: 3px 6px;
+  cursor: pointer;
+  height: 28px;
+}
+
+.compose-body {
+  min-height: 160px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-sm);
+  background: rgba(255,255,255,0.02);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.87rem;
+  line-height: 1.6;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.compose-body:focus {
+  border-color: var(--accent-purple);
+}
+
+.compose-body:empty:before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.compose-quoted {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--card-border);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  background: rgba(255,255,255,0.02);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.compose-attachments {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px dashed var(--card-border);
+  border-radius: var(--border-radius-sm);
+}
+
+.attachment-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
