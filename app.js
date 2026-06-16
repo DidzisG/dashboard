@@ -171,51 +171,80 @@ function showVisualNotification(title, message) {
 function setupNavigation() {
   const links = [navDashboard, navEmails, navCalendar, navTasks];
   const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget];
+  const workspace = document.querySelector('.dashboard-grid');
+  let focusedWidget = null;
+
+  // Inject focus mode exit hint pill (hidden by default)
+  const exitPill = document.createElement('div');
+  exitPill.id = 'focus-exit-pill';
+  exitPill.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Exit focus`;
+  document.getElementById('main-content')?.appendChild(exitPill);
+  exitPill.addEventListener('click', () => resetViews());
 
   const resetViews = () => {
     links.forEach(l => l?.classList.remove('active'));
+    navDashboard?.classList.add('active');
+    focusedWidget = null;
+
+    // Restore all widgets to grid layout
     widgets.forEach(w => {
-      if (w) {
-        w.style.display = 'flex'; // Reset grid defaults
-        w.style.opacity = '1';
+      if (!w) return;
+      w.classList.remove('widget-focused', 'widget-dimmed');
+    });
+    workspace?.classList.remove('workspace-focus-mode');
+    exitPill.classList.remove('visible');
+  };
+
+  const focusWidget = (targetWidget, navLink) => {
+    if (focusedWidget === targetWidget) {
+      // Second click on same nav item — restore
+      resetViews();
+      return;
+    }
+    focusedWidget = targetWidget;
+
+    links.forEach(l => l?.classList.remove('active'));
+    navLink?.classList.add('active');
+
+    widgets.forEach(w => {
+      if (!w) return;
+      if (w === targetWidget) {
+        w.classList.add('widget-focused');
+        w.classList.remove('widget-dimmed');
+      } else {
+        w.classList.add('widget-dimmed');
+        w.classList.remove('widget-focused');
       }
     });
+    workspace?.classList.add('workspace-focus-mode');
+    exitPill.classList.add('visible');
   };
 
   navDashboard?.addEventListener('click', (e) => {
     e.preventDefault();
     resetViews();
-    navDashboard.classList.add('active');
   });
 
   navEmails?.addEventListener('click', (e) => {
     e.preventDefault();
-    resetViews();
-    navEmails.classList.add('active');
-    // Hide others to focus Inbox list only
-    widgets.forEach(w => {
-      if (w && w !== emailWidget) w.style.display = 'none';
-    });
+    focusWidget(emailWidget, navEmails);
   });
 
   navCalendar?.addEventListener('click', (e) => {
     e.preventDefault();
-    resetViews();
-    navCalendar.classList.add('active');
-    // Hide others to focus Calendar grid only
-    widgets.forEach(w => {
-      if (w && w !== calendarWidget) w.style.display = 'none';
-    });
+    focusWidget(calendarWidget, navCalendar);
   });
 
   navTasks?.addEventListener('click', (e) => {
     e.preventDefault();
-    resetViews();
-    navTasks.classList.add('active');
-    // Hide others to focus Tasks only
-    widgets.forEach(w => {
-      if (w && w !== tasksWidget) w.style.display = 'none';
-    });
+    focusWidget(tasksWidget, navTasks);
+  });
+
+  // Escape key exits focus mode
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && focusedWidget) {
+      resetViews();
+    }
   });
 }
 

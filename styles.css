@@ -334,6 +334,70 @@ header {
   background: var(--bg-primary);
 }
 
+/* ---- Focus Mode ---- */
+.workspace-focus-mode {
+  overflow: hidden;
+}
+
+.widget-focused {
+  position: fixed !important;
+  top: var(--header-height) !important;
+  left: var(--sidebar-width) !important;
+  width: calc(100vw - var(--sidebar-width) - 32px) !important;
+  height: calc(100vh - var(--header-height) - 32px) !important;
+  margin: 16px !important;
+  z-index: 200 !important;
+  opacity: 1 !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7) !important;
+}
+
+.sidebar.collapsed ~ #main-content .widget-focused {
+  left: var(--sidebar-collapsed-width) !important;
+  width: calc(100vw - var(--sidebar-collapsed-width) - 32px) !important;
+}
+
+.widget-dimmed {
+  opacity: 0.08 !important;
+  pointer-events: none !important;
+  transform: scale(0.97);
+}
+
+/* Exit focus pill button */
+#focus-exit-pill {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 8px 18px;
+  cursor: pointer;
+  z-index: 300;
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+  pointer-events: none;
+}
+
+#focus-exit-pill.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#focus-exit-pill:hover {
+  background: rgba(255,255,255,0.15);
+  color: var(--text-primary);
+}
+
 /* Draggable Grid Widget containers */
 .widget {
   display: flex;
@@ -343,6 +407,13 @@ header {
   padding: 20px;
   background: var(--card-bg);
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: opacity 0.35s ease,
+              transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 0.3s ease;
 }
 
 .widget-header {
