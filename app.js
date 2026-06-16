@@ -417,15 +417,44 @@ function setupGoogleBtn() {
     if (isSignedIn()) {
       signOut();
       updateGoogleBtnUI(null);
-      // Clear Gmail messages on disconnect to preserve privacy
+      // Clear Gmail messages and Google data on disconnect
       state.emails = [];
       handleStateChange('emails', state.emails);
       renderEmails();
+      // Clear google-sourced calendar events
+      state.events = (state.events || []).filter(e => e.source !== 'google');
+      handleStateChange('events', state.events);
+      // Hide refresh button
+      const refreshBtn = document.getElementById('calendar-refresh-btn');
+      if (refreshBtn) refreshBtn.style.display = 'none';
       showVisualNotification('Google Disconnected', 'Your Google account has been disconnected.');
     } else {
       signIn();
     }
   });
+
+  // Sync Calendar manual button
+  const refreshBtn = document.getElementById('calendar-refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+      if (!isSignedIn()) return;
+      const svg = refreshBtn.querySelector('svg');
+      if (svg) svg.style.animation = 'spin 1s linear infinite';
+      refreshBtn.disabled = true;
+      showLoadingState('calendar-widget', true);
+      try {
+        const count = await syncCalendar();
+        showVisualNotification('Calendar Refreshed', `${count ?? 0} event(s) loaded`);
+      } catch (e) {
+        showVisualNotification('Calendar Sync Failed', e.message || 'Check console for details.');
+        console.error('Manual calendar sync error:', e);
+      } finally {
+        showLoadingState('calendar-widget', false);
+        refreshBtn.disabled = false;
+        if (svg) svg.style.animation = '';
+      }
+    });
+  }
 }
 
 async function handleGoogleSignIn(token, profile) {
@@ -488,11 +517,15 @@ async function handleGoogleSignIn(token, profile) {
   // --- Fetch Google Calendar ---
   showLoadingState('calendar-widget', true);
   try {
-    await syncCalendar();
-    addNotification('Google Calendar Synced', `Events loaded`, 'calendar');
+    const count = await syncCalendar();
+    addNotification('Google Calendar Synced', `${count ?? 0} event(s) loaded from Google Calendar`, 'calendar');
+    showVisualNotification('Calendar Synced ✓', `${count ?? 0} upcoming event(s) loaded`);
+    // Show the refresh button now that we're connected
+    const refreshBtn = document.getElementById('calendar-refresh-btn');
+    if (refreshBtn) refreshBtn.style.display = 'flex';
   } catch (e) {
     console.error('Calendar sync error:', e);
-    showVisualNotification('Calendar Error', e.message || 'Could not load Calendar.');
+    showVisualNotification('Calendar Sync Failed', e.message || 'Insufficient scope — please disconnect and reconnect Google.');
   }
   showLoadingState('calendar-widget', false);
 

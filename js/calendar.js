@@ -64,16 +64,23 @@ export function initCalendar(state, onStateChange) {
 
 export async function syncCalendar() {
   if (!isSignedIn()) return;
+  
   const gEvents = await fetchGoogleEvents();
   
-  // Keep local events, replace google ones
-  const localEvents = appState.events.filter(e => e.source !== 'google');
+  if (gEvents === null) {
+    // null means a real error (not just empty calendar)
+    throw new Error('Failed to fetch Google Calendar events');
+  }
   
+  // Keep local events, replace google-sourced ones
+  const localEvents = appState.events.filter(e => e.source !== 'google');
   appState.events = [...localEvents, ...gEvents];
   saveCallback('events', appState.events);
   
   renderCalendar();
   renderAgenda();
+  
+  return gEvents.length;
 }
 
 function updateAgendaLabel() {
@@ -226,7 +233,8 @@ export function renderCalendar() {
     dayCell.className = 'calendar-day';
     
     const cellDate = new Date(year, month, dayNum);
-    const dateStr = cellDate.toISOString().split('T')[0];
+    // Use local date string to avoid UTC timezone shifting
+    const dateStr = toLocalDateStr(cellDate);
 
     // Highlight active state triggers
     if (isSameDay(cellDate, today)) {
@@ -271,10 +279,11 @@ export function renderAgenda() {
   if (!agendaList) return;
   agendaList.innerHTML = '';
 
-  const selectedStr = selectedDate.toISOString().split('T')[0];
+  // Use local date string to avoid UTC timezone shifting
+  const selectedStr = toLocalDateStr(selectedDate);
   const daysEvents = appState.events
     .filter(e => e.date === selectedStr)
-    .sort((a, b) => a.time.localeCompare(b.time));
+    .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
   if (agendaCountBadge) {
     agendaCountBadge.innerText = daysEvents.length;
@@ -294,21 +303,32 @@ export function renderAgenda() {
     item.className = 'agenda-item';
     item.style.borderLeftColor = `var(--accent-${event.type === 'meeting' ? 'cyan' : event.type === 'deadline' ? 'rose' : 'purple'})`;
 
+    const sourceIcon = event.source === 'google'
+      ? `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="opacity:0.5;flex-shrink:0;" title="Google Calendar"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>`
+      : '';
+
     item.innerHTML = `
-      <span>${escapeHtml(event.title)}</span>
+      <span style="display:flex;align-items:center;gap:5px;flex:1;min-width:0;">${sourceIcon}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(event.title)}</span></span>
       <span class="agenda-time">${event.time}</span>
     `;
-    
-    // Add simple remove event option on double click or right click
-    item.title = "Double-click to remove event";
-    item.addEventListener('dblclick', () => {
-      if (confirm(`Remove event: "${event.title}"?`)) {
-        appState.events = appState.events.filter(e => e.id !== event.id);
-        saveCallback('events', appState.events);
-        renderCalendar();
-        renderAgenda();
-      }
-    });
+
+    // If it's a Google Calendar event, open in Google Calendar on click
+    if (event.calendarLink) {
+      item.style.cursor = 'pointer';
+      item.title = 'Click to open in Google Calendar';
+      item.addEventListener('click', () => window.open(event.calendarLink, '_blank'));
+    } else {
+      // Local events: double-click to remove
+      item.title = 'Double-click to remove event';
+      item.addEventListener('dblclick', () => {
+        if (confirm(`Remove event: "${event.title}"?`)) {
+          appState.events = appState.events.filter(e => e.id !== event.id);
+          saveCallback('events', appState.events);
+          renderCalendar();
+          renderAgenda();
+        }
+      });
+    }
 
     agendaList.appendChild(item);
   });
@@ -318,4 +338,12 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.innerText = text;
   return div.innerHTML;
+}
+
+// Helper: get local date string YYYY-MM-DD without UTC conversion
+function toLocalDateStr(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
