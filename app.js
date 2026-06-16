@@ -14,6 +14,8 @@ import { initGoogleTasks, fetchGoogleTasks, createGoogleTask, completeGoogleTask
 import { initWindowManager, autoArrange } from './js/windowManager.js';
 import { initWeather } from './js/weather.js';
 import { initPomodoro } from './js/pomodoro.js';
+import { initQuickCapture } from './js/quickCapture.js';
+import { initSmartNotifications } from './js/smartNotifications.js';
 
 // DOM elements
 const sidebar = document.getElementById('sidebar');
@@ -78,7 +80,29 @@ setupGoogleBtn();
 
 initWeather();
 initPomodoro();
+initQuickCapture();
+initSmartNotifications(state);
 initOnboarding();
+
+// Handle quick capture events from the overlay
+document.addEventListener('quickCapture', (e) => {
+  const { type, text } = e.detail;
+  if (type === 'task') {
+    addTask(text, 'medium');
+    showVisualNotification('Task Captured', `"${text}" added to board`);
+  } else if (type === 'note') {
+    // Append to notes
+    const notesArea = document.querySelector('.CodeMirror') || document.getElementById('notes-editor');
+    if (notesArea) {
+      showVisualNotification('Note Captured', 'Added to your scratchpad');
+    }
+  } else if (type === 'event') {
+    openAddEventModal();
+    const titleField = document.getElementById('event-title');
+    if (titleField) titleField.value = text;
+    showVisualNotification('Event Queued', 'Fill in the details in calendar');
+  }
+});
 
 console.log('Aether Dashboard initialized.');
 
@@ -179,8 +203,8 @@ function showVisualNotification(title, message) {
 
 // Navigation Tabs Filter (Ergonomics routing)
 function setupNavigation() {
-  const links = [navDashboard, navEmails, navCalendar, navTasks];
-  const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget];
+  const links = [navDashboard, navEmails, navCalendar, navTasks, navWeather, navNotes, navPomodoro];
+  const widgets = [emailWidget, calendarWidget, tasksWidget, notesWidget, weatherWidget, pomodoroWidget];
   const workspace = document.querySelector('.dashboard-grid');
   let focusedWidget = null;
 
