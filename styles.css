@@ -328,10 +328,16 @@ header {
 /* Dashboard Content Workspace */
 .dashboard-grid {
   flex-grow: 1;
-  position: relative;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   height: calc(100vh - var(--header-height));
   background: var(--bg-primary);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: min-content;
+  gap: 16px;
+  padding: 16px;
+  align-content: start;
 }
 
 /* ---- Focus Mode ---- */
@@ -398,22 +404,24 @@ header {
   color: var(--text-primary);
 }
 
-/* Draggable Grid Widget containers */
+/* Grid Widget containers */
 .widget {
   display: flex;
   flex-direction: column;
-  position: absolute;
   overflow: hidden;
   padding: 20px;
   background: var(--card-bg);
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  min-height: 320px;
   transition: opacity 0.35s ease,
               transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-              width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-              height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-              left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-              top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
               box-shadow 0.3s ease;
+  position: relative;
+}
+
+/* Some widgets span both columns */
+.widget.span-2 {
+  grid-column: span 2;
 }
 
 .widget-header {
@@ -2506,4 +2514,164 @@ body {
 .modal-nav-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+/* ============================================
+   POMODORO TIMER WIDGET
+   ============================================ */
+.pomo-ring-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
+}
+
+.pomo-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pomo-ring-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 8;
+}
+
+.pomo-ring-progress {
+  fill: none;
+  stroke: var(--accent-purple);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+}
+
+.pomo-ring-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.pomo-time {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.pomo-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.pomo-ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--card-border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+
+.pomo-ctrl-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-primary);
+  transform: scale(1.08);
+}
+
+.pomo-ctrl-btn.primary {
+  background: var(--accent-purple);
+  border-color: var(--accent-purple);
+  color: white;
+  width: 56px;
+  height: 56px;
+}
+
+.pomo-ctrl-btn.primary:hover {
+  background: #7c3aed;
+}
+
+/* ============================================
+   KEYBOARD SHORTCUTS MODAL
+   ============================================ */
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+}
+
+.shortcut-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-purple);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.shortcut-row:last-child { border: none; }
+
+.shortcut-row kbd {
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 5px;
+  padding: 2px 7px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* ============================================
+   DRAG-TO-REORDER STATE
+   ============================================ */
+.widget-dragging {
+  opacity: 0.4;
+  transform: scale(0.97);
+  cursor: grabbing !important;
+}
+
+.widget-placeholder {
+  background: rgba(139, 92, 246, 0.08);
+  border: 2px dashed var(--accent-purple);
+  border-radius: var(--border-radius-md);
+  min-height: 100px;
+}
+
+/* ============================================
+   SLIDE-IN ANIMATION (auto-arrange)
+   ============================================ */
+@keyframes slideInUp {
+  from {
+    opacity: 0.4;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

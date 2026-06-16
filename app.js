@@ -11,8 +11,9 @@ import { initNotes, syncNotesFromCloud } from './js/notes.js';
 import { initGoogleAuth, signIn, signOut, isSignedIn, getProfile } from './js/google.js';
 import { fetchGmailMessages, openInGmail, markGmailRead } from './js/gmail.js';
 import { initGoogleTasks, fetchGoogleTasks, createGoogleTask, completeGoogleTask, deleteGoogleTask } from './js/googleTasks.js';
-import { initWindowManager } from './js/windowManager.js';
+import { initWindowManager, autoArrange } from './js/windowManager.js';
 import { initWeather } from './js/weather.js';
+import { initPomodoro } from './js/pomodoro.js';
 
 // DOM elements
 const sidebar = document.getElementById('sidebar');
@@ -25,9 +26,12 @@ const soundIcon = document.getElementById('sound-icon');
 
 // Navigation links
 const navDashboard = document.getElementById('nav-dashboard');
-const navEmails = document.getElementById('nav-emails');
-const navCalendar = document.getElementById('nav-calendar');
-const navTasks = document.getElementById('nav-tasks');
+const navEmails    = document.getElementById('nav-emails');
+const navCalendar  = document.getElementById('nav-calendar');
+const navTasks     = document.getElementById('nav-tasks');
+const navWeather   = document.getElementById('nav-weather');
+const navNotes     = document.getElementById('nav-notes');
+const navPomodoro  = document.getElementById('nav-pomodoro');
 
 // Mobile tabs
 const mobDashboard = document.getElementById('mob-tab-dashboard');
@@ -37,10 +41,12 @@ const mobTasks = document.getElementById('mob-tab-tasks');
 const mobEmailBadge = document.getElementById('mob-email-badge');
 
 // Widget sections
-const emailWidget = document.getElementById('email-widget');
+const emailWidget    = document.getElementById('email-widget');
 const calendarWidget = document.getElementById('calendar-widget');
-const tasksWidget = document.getElementById('tasks-widget');
-const notesWidget = document.getElementById('notes-widget');
+const tasksWidget    = document.getElementById('tasks-widget');
+const notesWidget    = document.getElementById('notes-widget');
+const weatherWidget  = document.getElementById('weather-widget');
+const pomodoroWidget = document.getElementById('pomodoro-widget');
 
 let state = null;
 let saveDebounceTimer = null;
@@ -48,8 +54,9 @@ let saveDebounceTimer = null;
 // ES modules are deferred — DOM is ready by the time this runs
 state = loadState();
 if (!state.notifications) state.notifications = [];
+if (!state.widgetOrder) state.widgetOrder = [];
 
-// Initialize drag/resize window manager
+// Initialize grid/reorder window manager
 initWindowManager(state, handleStateChange);
 
 initTasks(state, handleStateChange);
@@ -70,6 +77,7 @@ initGoogleAuth(handleGoogleSignIn);
 setupGoogleBtn();
 
 initWeather();
+initPomodoro();
 initOnboarding();
 
 console.log('Aether Dashboard initialized.');
@@ -242,10 +250,39 @@ function setupNavigation() {
     focusWidget(tasksWidget, navTasks);
   });
 
+  navWeather?.addEventListener('click', (e) => {
+    e.preventDefault();
+    focusWidget(weatherWidget, navWeather);
+  });
+
+  navNotes?.addEventListener('click', (e) => {
+    e.preventDefault();
+    focusWidget(notesWidget, navNotes);
+  });
+
+  navPomodoro?.addEventListener('click', (e) => {
+    e.preventDefault();
+    focusWidget(pomodoroWidget, navPomodoro);
+  });
+
+  // Wire shortcuts button
+  const shortcutsBtn = document.getElementById('shortcuts-btn');
+  const shortcutsDialog = document.getElementById('shortcuts-dialog');
+  if (shortcutsBtn && shortcutsDialog) {
+    shortcutsBtn.addEventListener('click', () => shortcutsDialog.showModal());
+    document.getElementById('shortcuts-close')?.addEventListener('click', () => shortcutsDialog.close());
+  }
+
   // Escape key exits focus mode
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && focusedWidget) {
       resetViews();
+    }
+    // ? opens shortcuts
+    const tag = document.activeElement?.tagName;
+    const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || document.activeElement?.isContentEditable;
+    if (!inInput && e.key === '?' && shortcutsDialog) {
+      shortcutsDialog.showModal();
     }
   });
 }

@@ -46,6 +46,24 @@
               <span>Tasks</span>
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav-weather">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+              <span>Weather</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav-notes">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>Notes</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav-pomodoro">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Pomodoro</span>
+            </a>
+          </li>
         </ul>
       </div>
       
@@ -96,6 +114,15 @@
             <option value="focus">Deep Focus</option>
             <option value="comms">Communication</option>
           </select>
+
+          <!-- Auto-Arrange Button -->
+          <button id="auto-arrange-btn" title="Auto-arrange tiles" aria-label="Auto-arrange tiles" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:8px;color:var(--text-secondary);padding:5px 10px;cursor:pointer;font-family:inherit;font-size:0.75rem;transition:all 0.15s ease;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+            Arrange
+          </button>
+
+          <!-- Keyboard Shortcut Help -->
+          <button id="shortcuts-btn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" style="display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:8px;color:var(--text-secondary);width:32px;height:32px;cursor:pointer;font-family:inherit;font-size:0.85rem;font-weight:700;transition:all 0.15s ease;">?</button>
 
           <!-- Refresh Calendar (shows after sign-in) -->
           <button id="calendar-refresh-btn" title="Refresh Google Calendar" aria-label="Refresh Google Calendar"
@@ -264,6 +291,49 @@
             <div id="weather-loading" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.85rem;">
               Detecting location...
             </div>
+          </div>
+        </section>
+
+        <!-- Widget: Pomodoro Timer -->
+        <section class="widget glass-panel" id="pomodoro-widget">
+          <div class="widget-header">
+            <h2 class="widget-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Pomodoro
+            </h2>
+            <div class="widget-actions" style="display:flex;gap:6px;align-items:center;">
+              <button class="widget-btn" id="pomo-mode-work" title="Work session">Work</button>
+              <button class="widget-btn" id="pomo-mode-short" title="Short break">Short</button>
+              <button class="widget-btn" id="pomo-mode-long" title="Long break">Long</button>
+            </div>
+          </div>
+          <div class="widget-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:16px 0;">
+            <!-- SVG ring timer -->
+            <div class="pomo-ring-wrap">
+              <svg class="pomo-ring" viewBox="0 0 120 120">
+                <circle class="pomo-ring-bg" cx="60" cy="60" r="52"/>
+                <circle class="pomo-ring-progress" id="pomo-ring-progress" cx="60" cy="60" r="52"/>
+              </svg>
+              <div class="pomo-ring-inner">
+                <div class="pomo-time" id="pomo-display">25:00</div>
+                <div class="pomo-label" id="pomo-session-label">Focus</div>
+              </div>
+            </div>
+            <!-- Controls -->
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button class="pomo-ctrl-btn" id="pomo-reset-btn" title="Reset">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+              </button>
+              <button class="pomo-ctrl-btn primary" id="pomo-start-btn" title="Start / Pause">
+                <svg id="pomo-play-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <svg id="pomo-pause-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              </button>
+              <button class="pomo-ctrl-btn" id="pomo-skip-btn" title="Skip to next">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+              </button>
+            </div>
+            <!-- Session count -->
+            <div id="pomo-sessions" style="font-size:0.75rem;color:var(--text-muted);">Sessions today: <strong id="pomo-count">0</strong></div>
           </div>
         </section>
 
@@ -481,6 +551,45 @@
     <div class="modal-footer">
       <button class="modal-btn" id="event-modal-cancel">Cancel</button>
       <button class="modal-btn primary" id="event-modal-save">Save Event</button>
+    </div>
+  </dialog>
+
+  <!-- Dialog Modal: Keyboard Shortcuts -->
+  <dialog id="shortcuts-dialog" aria-labelledby="shortcuts-title" aria-modal="true">
+    <div class="modal-header">
+      <h3 class="modal-title" id="shortcuts-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:6px;"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Keyboard Shortcuts
+      </h3>
+      <button class="modal-close-btn" id="shortcuts-close" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" style="padding-top:10px;">
+      <div class="shortcuts-grid">
+        <div class="shortcut-section">
+          <div class="shortcut-section-title">Global</div>
+          <div class="shortcut-row"><kbd>⌘ K</kbd><span>Open command palette</span></div>
+          <div class="shortcut-row"><kbd>,</kbd><span>Open settings</span></div>
+          <div class="shortcut-row"><kbd>?</kbd><span>This shortcuts panel</span></div>
+          <div class="shortcut-row"><kbd>Esc</kbd><span>Close any modal</span></div>
+        </div>
+        <div class="shortcut-section">
+          <div class="shortcut-section-title">Navigation</div>
+          <div class="shortcut-row"><kbd>E</kbd><span>Focus Inbox</span></div>
+          <div class="shortcut-row"><kbd>C</kbd><span>Open calendar event</span></div>
+          <div class="shortcut-row"><kbd>T</kbd><span>Create new task</span></div>
+        </div>
+        <div class="shortcut-section">
+          <div class="shortcut-section-title">Email (when open)</div>
+          <div class="shortcut-row"><kbd>←</kbd><span>Previous email</span></div>
+          <div class="shortcut-row"><kbd>→</kbd><span>Next email</span></div>
+          <div class="shortcut-row"><kbd>R</kbd><span>Reply</span></div>
+        </div>
+        <div class="shortcut-section">
+          <div class="shortcut-section-title">Pomodoro</div>
+          <div class="shortcut-row"><kbd>Space</kbd><span>Start / Pause timer</span></div>
+          <div class="shortcut-row"><kbd>S</kbd><span>Skip current session</span></div>
+        </div>
+      </div>
     </div>
   </dialog>
 

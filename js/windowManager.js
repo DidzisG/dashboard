@@ -1,146 +1,150 @@
-export function initWindowManager(state, saveCallback) {
-  const container = document.getElementById('main-content');
-  const dashboardGrid = document.querySelector('.dashboard-grid');
-  
-  // Abort if no grid, no state, or if running on mobile (CSS handles layout via flex-column)
-  if (!dashboardGrid || !state.layout || window.innerWidth <= 768) return;
+// Window Manager — Drag-to-reorder grid tiles
+// Works with CSS Grid layout (no absolute positioning)
 
-  const widgets = Array.from(dashboardGrid.querySelectorAll('.widget'));
-  
-  // Apply initial layout
-  widgets.forEach(widget => {
-    const id = widget.id;
-    const layout = state.layout[id];
-    if (layout) {
-      widget.style.left = `${layout.x}px`;
-      widget.style.top = `${layout.y}px`;
-      widget.style.width = `${layout.w}px`;
-      widget.style.height = `${layout.h}px`;
-      widget.style.zIndex = layout.z || 1;
+let appState = null;
+let saveCallback = null;
+
+export function initWindowManager(state, onSave) {
+  appState = state;
+  saveCallback = onSave;
+
+  const grid = document.querySelector('.dashboard-grid');
+  if (!grid) return;
+
+  // Apply saved order
+  applyWidgetOrder(grid);
+
+  // Setup drag-to-reorder on headers
+  setupDragToReorder(grid);
+
+  // Auto-arrange button
+  const autoBtn = document.getElementById('auto-arrange-btn');
+  if (autoBtn) {
+    autoBtn.addEventListener('click', () => autoArrange(grid));
+  }
+}
+
+function getWidgets(grid) {
+  return Array.from(grid.querySelectorAll(':scope > .widget'));
+}
+
+function applyWidgetOrder(grid) {
+  if (!appState?.widgetOrder?.length) return;
+  const order = appState.widgetOrder;
+  order.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.style.order = i;
+  });
+}
+
+function saveWidgetOrder(grid) {
+  if (!appState) return;
+  const widgets = getWidgets(grid);
+  appState.widgetOrder = widgets.map(w => w.id);
+  if (saveCallback) saveCallback('widgetOrder', appState.widgetOrder);
+}
+
+function setupDragToReorder(grid) {
+  let dragging = null;
+  let placeholder = null;
+
+  grid.addEventListener('dragstart', (e) => {
+    const widget = e.target.closest('.widget');
+    if (!widget) return;
+    dragging = widget;
+    setTimeout(() => {
+      widget.classList.add('widget-dragging');
+    }, 0);
+
+    // Create placeholder
+    placeholder = document.createElement('div');
+    placeholder.className = 'widget-placeholder';
+    placeholder.style.gridColumn = window.getComputedStyle(widget).gridColumn;
+  });
+
+  grid.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (!dragging) return;
+
+    const target = e.target.closest('.widget');
+    if (!target || target === dragging || target === placeholder) return;
+
+    const rect = target.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    const after = e.clientY > midY;
+
+    if (after) {
+      target.after(dragging);
+    } else {
+      target.before(dragging);
     }
   });
 
-  let draggedWidget = null;
-  let offsetX = 0;
-  let offsetY = 0;
-  let resizingWidget = null;
-  let startW = 0;
-  let startH = 0;
-  let startX = 0;
-  let startY = 0;
-  
-  // Bring to front logic
-  function bringToFront(widget) {
-    let maxZ = 0;
-    widgets.forEach(w => {
-      const z = parseInt(window.getComputedStyle(w).zIndex || 1);
-      if (z > maxZ) maxZ = z;
-    });
-    widget.style.zIndex = maxZ + 1;
-  }
+  grid.addEventListener('dragend', () => {
+    if (dragging) {
+      dragging.classList.remove('widget-dragging');
+      dragging = null;
+    }
+    if (placeholder && placeholder.parentNode) {
+      placeholder.remove();
+      placeholder = null;
+    }
+    saveWidgetOrder(grid);
+  });
 
-  // Setup drag headers
-  widgets.forEach(widget => {
+  // Make widget headers draggable
+  getWidgets(grid).forEach(widget => {
     const header = widget.querySelector('.widget-header');
     if (header) {
+      widget.setAttribute('draggable', 'true');
       header.style.cursor = 'grab';
-      header.addEventListener('mousedown', (e) => {
-        // Prevent drag if clicking on buttons
-        if (e.target.closest('button')) return;
-        
-        bringToFront(widget);
-        draggedWidget = widget;
-        const rect = widget.getBoundingClientRect();
-        const gridRect = dashboardGrid.getBoundingClientRect();
-        
-        // Offset relative to the widget's current absolute position
-        offsetX = e.clientX - rect.left + gridRect.left;
-        offsetY = e.clientY - rect.top + gridRect.top;
-        
+      header.addEventListener('mousedown', () => {
         header.style.cursor = 'grabbing';
       });
-    }
-
-    // Setup resize handles
-    const resizeHandle = document.createElement('div');
-    resizeHandle.className = 'resize-handle';
-    resizeHandle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
-    widget.appendChild(resizeHandle);
-
-    resizeHandle.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-      bringToFront(widget);
-      resizingWidget = widget;
-      startW = widget.offsetWidth;
-      startH = widget.offsetHeight;
-      startX = e.clientX;
-      startY = e.clientY;
-    });
-    
-    // Add click to focus
-    widget.addEventListener('mousedown', () => {
-      if (draggedWidget !== widget && resizingWidget !== widget) {
-        bringToFront(widget);
-      }
-    });
-  });
-
-  const GRID_SNAP = 20;
-
-  window.addEventListener('mousemove', (e) => {
-    if (draggedWidget) {
-      const gridRect = dashboardGrid.getBoundingClientRect();
-      let rawX = e.clientX - offsetX;
-      let rawY = e.clientY - offsetY;
-      
-      // Basic bounds checking (don't go off top/left)
-      if (rawX < 0) rawX = 0;
-      if (rawY < 0) rawY = 0;
-      
-      // Snap to grid
-      let newX = Math.round(rawX / GRID_SNAP) * GRID_SNAP;
-      let newY = Math.round(rawY / GRID_SNAP) * GRID_SNAP;
-      
-      draggedWidget.style.left = `${newX}px`;
-      draggedWidget.style.top = `${newY}px`;
-    } else if (resizingWidget) {
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      
-      let rawW = Math.max(300, startW + dx); // minimum width
-      let rawH = Math.max(200, startH + dy); // minimum height
-      
-      // Snap to grid
-      let newW = Math.round(rawW / GRID_SNAP) * GRID_SNAP;
-      let newH = Math.round(rawH / GRID_SNAP) * GRID_SNAP;
-      
-      resizingWidget.style.width = `${newW}px`;
-      resizingWidget.style.height = `${newH}px`;
-    }
-  });
-
-  window.addEventListener('mouseup', () => {
-    if (draggedWidget || resizingWidget) {
-      if (draggedWidget) {
-        const header = draggedWidget.querySelector('.widget-header');
-        if (header) header.style.cursor = 'grab';
-      }
-      
-      // Save state
-      widgets.forEach(w => {
-        const id = w.id;
-        state.layout[id] = {
-          x: parseInt(w.style.left || 0),
-          y: parseInt(w.style.top || 0),
-          w: parseInt(w.style.width || w.offsetWidth),
-          h: parseInt(w.style.height || w.offsetHeight),
-          z: parseInt(w.style.zIndex || 1)
-        };
+      header.addEventListener('mouseup', () => {
+        header.style.cursor = 'grab';
       });
-      saveCallback('layout', state.layout);
-      
-      draggedWidget = null;
-      resizingWidget = null;
     }
   });
+}
+
+export function autoArrange(grid) {
+  if (!grid) grid = document.querySelector('.dashboard-grid');
+  if (!grid) return;
+
+  // Snap all widgets back to natural order (alphabetical by id)
+  const widgets = getWidgets(grid);
+
+  // Default order
+  const defaultOrder = [
+    'email-widget',
+    'calendar-widget',
+    'tasks-widget',
+    'weather-widget',
+    'notes-widget',
+    'pomodoro-widget',
+  ];
+
+  // Sort: known order first, then rest alphabetically
+  widgets.sort((a, b) => {
+    const ai = defaultOrder.indexOf(a.id);
+    const bi = defaultOrder.indexOf(b.id);
+    if (ai === -1 && bi === -1) return a.id.localeCompare(b.id);
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+
+  // Remove all widgets and re-append in order
+  widgets.forEach(w => grid.appendChild(w));
+
+  // Animate
+  widgets.forEach((w, i) => {
+    w.style.animation = 'none';
+    requestAnimationFrame(() => {
+      w.style.animation = `slideInUp 0.3s ease ${i * 0.04}s both`;
+    });
+  });
+
+  saveWidgetOrder(grid);
 }
