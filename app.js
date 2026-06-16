@@ -12,6 +12,7 @@ import { initGoogleAuth, signIn, signOut, isSignedIn, getProfile } from './js/go
 import { fetchGmailMessages, openInGmail, markGmailRead } from './js/gmail.js';
 import { initGoogleTasks, fetchGoogleTasks, createGoogleTask, completeGoogleTask, deleteGoogleTask } from './js/googleTasks.js';
 import { initWindowManager } from './js/windowManager.js';
+import { initWeather } from './js/weather.js';
 
 // DOM elements
 const sidebar = document.getElementById('sidebar');
@@ -68,6 +69,7 @@ setupMobileNav();
 initGoogleAuth(handleGoogleSignIn);
 setupGoogleBtn();
 
+initWeather();
 initOnboarding();
 
 console.log('Aether Dashboard initialized.');

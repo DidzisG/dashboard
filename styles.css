@@ -2345,3 +2345,165 @@ body {
   font-size: 0.75rem;
   color: var(--text-secondary);
 }
+
+/* ============================================
+   WEATHER WIDGET
+   ============================================ */
+.weather-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0 8px;
+}
+
+.weather-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.weather-icon-big {
+  font-size: 3.2rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 12px rgba(255,200,50,0.3));
+}
+
+.weather-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weather-temp {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.weather-condition {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.weather-city {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.weather-city::before {
+  content: '📍';
+  font-size: 0.7rem;
+}
+
+.weather-details {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.weather-detail-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  flex: 1;
+  min-width: 60px;
+}
+
+.weather-detail-pill span {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.weather-detail-pill strong {
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.weather-forecast {
+  display: flex;
+  gap: 6px;
+  border-top: 1px solid var(--card-border);
+  padding-top: 10px;
+  margin-top: 2px;
+}
+
+.weather-day {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 4px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.weather-day:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.weather-day-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.weather-day-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.weather-day-hi {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.weather-day-lo {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   EMAIL MODAL PREV/NEXT NAV BUTTONS
+   ============================================ */
+.modal-nav-btn {
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.modal-nav-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.15);
+  color: var(--text-primary);
+}
+
+.modal-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

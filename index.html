@@ -249,6 +249,24 @@
           </div>
         </section>
 
+        <!-- Widget: Weather -->
+        <section class="widget glass-panel" id="weather-widget">
+          <div class="widget-header">
+            <h2 class="widget-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+              Weather
+            </h2>
+            <div class="widget-actions">
+              <button class="widget-btn" id="weather-refresh-btn" title="Refresh weather">↻</button>
+            </div>
+          </div>
+          <div class="widget-content" id="weather-content">
+            <div id="weather-loading" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.85rem;">
+              Detecting location...
+            </div>
+          </div>
+        </section>
+
         <!-- Widget: Scratchpad Notes -->
         <section class="widget glass-panel" id="notes-widget">
           <div class="widget-header">
@@ -290,8 +308,18 @@
   <dialog id="email-detail-dialog" role="dialog" aria-labelledby="email-modal-subject" aria-modal="true" class="email-dialog-wide">
     <!-- VIEW MODE -->
     <div id="email-view-panel">
-      <div class="modal-header">
-        <h3 class="modal-title" id="email-modal-subject">Email Subject</h3>
+      <div class="modal-header" style="gap:6px;">
+        <!-- Prev/Next navigation -->
+        <div style="display:flex;align-items:center;gap:4px;margin-right:4px;">
+          <button class="modal-nav-btn" id="email-modal-prev" title="Previous email" aria-label="Previous email">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span id="email-modal-nav-counter" style="font-size:0.7rem;color:var(--text-muted);min-width:36px;text-align:center;"></span>
+          <button class="modal-nav-btn" id="email-modal-next" title="Next email" aria-label="Next email">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <h3 class="modal-title" id="email-modal-subject" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Email Subject</h3>
         <button class="modal-close-btn" id="email-modal-close" title="Close dialog" aria-label="Close dialog">×</button>
       </div>
       <div class="modal-body">

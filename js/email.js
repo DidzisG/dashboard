@@ -111,6 +111,16 @@ export function initEmails(state, onStateChange, onStateSync) {
       else if (email?.senderEmail) window.open(`https://mail.google.com/`, '_blank');
     });
 
+    // Prev / Next navigation
+    document.getElementById('email-modal-prev').addEventListener('click', () => navigateEmail(-1));
+    document.getElementById('email-modal-next').addEventListener('click', () => navigateEmail(1));
+
+    // Keyboard arrow navigation while dialog is open
+    emailDialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); navigateEmail(-1); }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); navigateEmail(1); }
+    });
+
     // Compose toolbar: execCommand formatting
     document.getElementById('compose-toolbar').addEventListener('click', (e) => {
       const btn = e.target.closest('[data-cmd]');
@@ -323,11 +333,14 @@ export function openEmailDetail(id) {
   emailModalFrom.innerText = `${email.sender} <${email.senderEmail}>`;
   emailModalTime.innerText = `${email.date} at ${email.time}`;
   
-  // If the body looks like a Gmail snippet (has [Click to open in Gmail]) render as text; else try HTML
+  // Render body
   const bodyContent = email.body || '';
   emailModalBody.innerHTML = bodyContent.includes('[Click to open') 
     ? `<span style="white-space:pre-wrap">${escapeHtml(bodyContent)}</span>`
     : bodyContent;
+
+  // Update nav counter
+  updateNavCounter();
 
   // Mark as read
   if (!email.read) {
@@ -344,6 +357,26 @@ export function openEmailDetail(id) {
   if (emailDialog) {
     emailDialog.showModal();
   }
+}
+
+function navigateEmail(direction) {
+  if (!appState.emails.length) return;
+  const currentIndex = appState.emails.findIndex(m => m.id === activeEmailId);
+  if (currentIndex === -1) return;
+  const newIndex = (currentIndex + direction + appState.emails.length) % appState.emails.length;
+  openEmailDetail(appState.emails[newIndex].id);
+}
+
+function updateNavCounter() {
+  const counter = document.getElementById('email-modal-nav-counter');
+  if (!counter || !appState.emails.length) return;
+  const idx = appState.emails.findIndex(m => m.id === activeEmailId);
+  counter.textContent = `${idx + 1} / ${appState.emails.length}`;
+  // Disable arrows when only 1 email
+  const prevBtn = document.getElementById('email-modal-prev');
+  const nextBtn = document.getElementById('email-modal-next');
+  if (prevBtn) prevBtn.disabled = appState.emails.length <= 1;
+  if (nextBtn) nextBtn.disabled = appState.emails.length <= 1;
 }
 
 function openComposePanel() {
