@@ -1,41 +1,46 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;1,500&display=swap');
 
 :root {
-  /* Color Palette (Obsidian & Glassmorphism) */
-  --bg-primary: #0a0b10;
-  --bg-secondary: #11131c;
-  --card-bg: rgba(22, 26, 41, 0.45);
-  --card-bg-hover: rgba(30, 36, 56, 0.6);
-  --card-border: rgba(255, 255, 255, 0.06);
-  --card-border-focus: rgba(139, 92, 246, 0.4);
-  
+  /* ── Rocket Bean Brand Palette ── */
+  /* Warm espresso dark backgrounds */
+  --bg-primary:    #181411;
+  --bg-secondary:  #201c19;
+
+  /* Card surfaces — warm dark glass */
+  --card-bg:        rgba(36, 30, 25, 0.72);
+  --card-bg-hover:  rgba(46, 39, 32, 0.80);
+  --card-border:    rgba(191, 106, 72, 0.12);  /* copper tint */
+  --card-border-focus: rgba(191, 106, 72, 0.45);
+
   /* Text colors */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  
-  /* Accent Colors */
-  --accent-purple: #8b5cf6;
-  --accent-purple-glow: rgba(139, 92, 246, 0.35);
-  --accent-cyan: #06b6d4;
-  --accent-cyan-glow: rgba(6, 182, 212, 0.35);
-  --accent-green: #10b981;
-  --accent-green-glow: rgba(16, 185, 129, 0.25);
-  --accent-amber: #f59e0b;
-  --accent-rose: #f43f5e;
-  
+  --text-primary:   #f5f0eb;   /* warm white */
+  --text-secondary: #b8a898;
+  --text-muted:     #7d6e61;
+
+  /* ── Accent: Rocket Bean Copper ── */
+  --accent-purple:      #bf6a48;   /* brand copper (replaces purple) */
+  --accent-purple-glow: rgba(191, 106, 72, 0.32);
+
+  /* Secondary accents */
+  --accent-cyan:      #c49a6c;   /* warm gold/caramel */
+  --accent-cyan-glow: rgba(196, 154, 108, 0.28);
+  --accent-green:     #7db87d;   /* muted sage green */
+  --accent-green-glow: rgba(125, 184, 125, 0.22);
+  --accent-amber:     #e09e55;   /* warm amber */
+  --accent-rose:      #cc5a4a;   /* warm red, still distinct */
+
   /* Layout constraints */
   --sidebar-width: 240px;
   --sidebar-collapsed-width: 72px;
-  --header-height: 70px;
+  --header-height: 64px;
   --border-radius-sm: 8px;
   --border-radius-md: 14px;
   --border-radius-lg: 20px;
-  
+
   /* Transitions */
-  --transition-fast: 0.15s ease;
+  --transition-fast:   0.15s ease;
   --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Base resets & layout */
@@ -51,11 +56,11 @@
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Rubik', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background-color: var(--bg-primary);
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
+  background-image:
+    radial-gradient(at 0% 0%,   rgba(191, 106, 72, 0.10) 0px, transparent 55%),
+    radial-gradient(at 100% 100%, rgba(196, 154, 108, 0.07) 0px, transparent 55%);
   background-attachment: fixed;
   color: var(--text-primary);
   overflow: hidden;
@@ -2683,16 +2688,40 @@ body {
    DRAG-TO-REORDER STATE
    ============================================ */
 .widget-dragging {
-  opacity: 0.4;
-  transform: scale(0.97);
+  opacity: 0.25;
+  transform: scale(0.98);
+  filter: blur(1px);
   cursor: grabbing !important;
+  pointer-events: none;
+  transition: none;
 }
 
+/* Placeholder drop target */
+#drag-placeholder {
+  background: rgba(191, 106, 72, 0.07);
+  border: 2px dashed rgba(191, 106, 72, 0.4);
+  border-radius: var(--border-radius-md);
+  transition: all 0.1s ease;
+  pointer-events: none;
+}
+
+/* Legacy .widget-placeholder kept for compat */
 .widget-placeholder {
-  background: rgba(139, 92, 246, 0.08);
+  background: rgba(191, 106, 72, 0.07);
   border: 2px dashed var(--accent-purple);
   border-radius: var(--border-radius-md);
   min-height: 100px;
+}
+
+/* Drag ghost (follows cursor) */
+#drag-ghost {
+  font-family: 'Rubik', sans-serif;
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 /* ============================================
