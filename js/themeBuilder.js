@@ -2,6 +2,29 @@
 // Applies full color palette presets and supports compact mode
 
 export const THEMES = {
+  rocketbean: {
+    label: 'Rocket Bean',
+    emoji: '☕',
+    vars: {
+      '--bg-primary':         '#181411',
+      '--bg-secondary':       '#201c19',
+      '--card-bg':            'rgba(36, 30, 25, 0.72)',
+      '--card-bg-hover':      'rgba(46, 39, 32, 0.80)',
+      '--card-border':        'rgba(191, 106, 72, 0.12)',
+      '--card-border-focus':  'rgba(191, 106, 72, 0.45)',
+      '--text-primary':       '#f5f0eb',
+      '--text-secondary':     '#b8a898',
+      '--text-muted':         '#7d6e61',
+      '--accent-purple':      '#bf6a48',
+      '--accent-purple-glow': 'rgba(191, 106, 72, 0.32)',
+      '--accent-cyan':        '#c49a6c',
+      '--accent-cyan-glow':   'rgba(196, 154, 108, 0.28)',
+      '--accent-green':       '#7db87d',
+      '--accent-green-glow':  'rgba(125, 184, 125, 0.22)',
+      '--accent-amber':       '#e09e55',
+      '--accent-rose':        '#cc5a4a',
+    },
+  },
   obsidian: {
     label: 'Obsidian',
     emoji: '🌑',
@@ -18,7 +41,9 @@ export const THEMES = {
       '--accent-purple':      '#8b5cf6',
       '--accent-purple-glow': 'rgba(139, 92, 246, 0.35)',
       '--accent-cyan':        '#06b6d4',
+      '--accent-cyan-glow':   'rgba(6, 182, 212, 0.35)',
       '--accent-green':       '#10b981',
+      '--accent-green-glow':  'rgba(16, 185, 129, 0.25)',
       '--accent-amber':       '#f59e0b',
       '--accent-rose':        '#f43f5e',
     },
@@ -308,9 +333,9 @@ export function initThemeBuilder(state, saveCallback) {
   themeState = state;
   themeSaveCallback = saveCallback;
 
-  // Restore saved theme
-  currentTheme = state.colorTheme || 'obsidian';
-  if (currentTheme !== 'obsidian') applyTheme(currentTheme);
+  // Restore saved theme — default to 'rocketbean' (brand theme)
+  currentTheme = state.colorTheme || 'rocketbean';
+  applyTheme(currentTheme);  // always apply so CSS vars are set from JS (overrides stylesheet defaults)
 
   // Restore compact mode
   compactMode = state.compactMode ?? false;
